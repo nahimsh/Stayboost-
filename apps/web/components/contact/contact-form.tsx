@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { cloneElement, isValidElement, useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { CONTACT_REASONS, contactLeadInputSchema, type ContactReason } from "@stayboost/domain";
 import { ApiError } from "@stayboost/api-client";
@@ -21,6 +21,12 @@ type FieldErrors = Partial<Record<string, string>>;
 export function ContactForm(): React.JSX.Element {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [errors, setErrors] = useState<FieldErrors>({});
+  const alertRef = useRef<HTMLParagraphElement>(null);
+
+  // Move focus to the error summary after a failed submit so AT users notice it.
+  useEffect(() => {
+    if (status.kind === "error") alertRef.current?.focus();
+  }, [status]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -76,10 +82,10 @@ export function ContactForm(): React.JSX.Element {
   return (
     <form noValidate onSubmit={handleSubmit} className="space-y-5">
       <Field id="name" label={t.form.name} error={errors.name}>
-        <Input id="name" name="name" autoComplete="name" required aria-invalid={Boolean(errors.name)} />
+        <Input id="name" name="name" autoComplete="name" required />
       </Field>
       <Field id="email" label={t.form.email} error={errors.email}>
-        <Input id="email" name="email" type="email" inputMode="email" autoComplete="email" required aria-invalid={Boolean(errors.email)} />
+        <Input id="email" name="email" type="email" inputMode="email" autoComplete="email" required />
       </Field>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id="company" label={t.form.company} error={errors.company}>
@@ -99,17 +105,17 @@ export function ContactForm(): React.JSX.Element {
         </Select>
       </Field>
       <Field id="message" label={t.form.message} error={errors.message}>
-        <Textarea id="message" name="message" placeholder={t.form.messagePlaceholder} required aria-invalid={Boolean(errors.message)} />
+        <Textarea id="message" name="message" placeholder={t.form.messagePlaceholder} required />
       </Field>
 
       {/* Honeypot: hidden from users, catches bots. */}
       <div aria-hidden className="hidden">
-        <label htmlFor="website">Website</label>
+        <label htmlFor="website">{t.form.honeypot}</label>
         <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       {status.kind === "error" ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p ref={alertRef} tabIndex={-1} role="alert" aria-live="assertive" className="text-sm text-destructive outline-none">
           {status.message}
         </p>
       ) : null}
@@ -130,14 +136,21 @@ function Field({
   readonly id: string;
   readonly label: string;
   readonly error?: string | undefined;
-  readonly children: React.ReactNode;
+  readonly children: ReactElement<{ "aria-describedby"?: string; "aria-invalid"?: boolean }>;
 }): React.JSX.Element {
+  const errorId = `${id}-error`;
+  // Wire the control to its error message for assistive tech.
+  const control =
+    error && isValidElement(children)
+      ? cloneElement(children, { "aria-describedby": errorId, "aria-invalid": true })
+      : children;
+
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
-      {children}
+      {control}
       {error ? (
-        <p id={`${id}-error`} className="text-sm text-destructive">
+        <p id={errorId} aria-live="polite" className="text-sm text-destructive">
           {error}
         </p>
       ) : null}

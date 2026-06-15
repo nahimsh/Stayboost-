@@ -3,6 +3,15 @@ export const en = {
   common: {
     brand: "StayBoost",
     tagline: "The AI-Powered Hospitality Growth Operating System",
+    a11y: {
+      skipToContent: "Skip to content",
+      primaryNav: "Primary",
+      mobileNav: "Mobile",
+      openMenu: "Open menu",
+      closeMenu: "Close menu",
+      included: "Included",
+      notIncluded: "Not included",
+    },
     nav: {
       features: "Features",
       pricing: "Pricing",
@@ -228,6 +237,7 @@ export const en = {
       reason: "How can we help?",
       message: "Message",
       messagePlaceholder: "Tell us about your properties and what you'd like to achieve.",
+      honeypot: "Website",
       submit: "Send message",
       submitting: "Sending…",
       reasons: {

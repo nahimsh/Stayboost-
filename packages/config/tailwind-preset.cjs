@@ -34,6 +34,8 @@ module.exports = {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          // Darker green that meets WCAG AA contrast as text/icons on light surfaces.
+          strong: "hsl(var(--accent-strong))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

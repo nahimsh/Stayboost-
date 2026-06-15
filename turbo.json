@@ -1,9 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
+  "globalDependencies": ["tsconfig*.json", ".eslintrc.cjs"],
   "tasks": {
+    "generate": {
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
+      "inputs": ["src/**", "app/**", "components/**", "lib/**", "public/**", "*.config.*", "tsconfig*.json"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "dev": {
@@ -11,13 +16,16 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "inputs": ["src/**", "app/**", "components/**", "lib/**", ".eslintrc.cjs"],
+      "outputs": []
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "inputs": ["src/**", "app/**", "components/**", "lib/**", "tsconfig*.json"],
+      "outputs": []
     },
     "test": {
-      "dependsOn": ["^build"]
+      "inputs": ["src/**", "app/**", "components/**", "lib/**", "vitest.*"],
+      "outputs": []
     }
   }
 }

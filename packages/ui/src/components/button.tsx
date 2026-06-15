@@ -15,7 +15,8 @@ const buttonVariants = cva(
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       },
       size: {
-        // Min height keeps touch targets >= 44px on mobile per design rules.
+        // `md`/`lg` meet the 44px touch-target minimum; reserve `sm` for
+        // pointer-only/desktop-dense contexts.
         sm: "h-10 px-3",
         md: "h-11 px-5",
         lg: "h-12 px-7 text-base",

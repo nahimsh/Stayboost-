@@ -9,6 +9,8 @@ export class ContactController {
   constructor(private readonly contact: ContactService) {}
 
   // Tighter limit than the global default: contact is a public, abusable POST.
+  // Idempotency keys are intentionally deferred for this low-harm endpoint (see
+  // docs/adr/0002); they land with the first high-stakes mutation.
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post()
   @HttpCode(HttpStatus.ACCEPTED)

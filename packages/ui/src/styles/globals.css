@@ -25,6 +25,7 @@
 
     --accent: 162 73% 46%; /* growth green */
     --accent-foreground: 222 47% 11%;
+    --accent-strong: 162 84% 26%; /* AA-contrast green for text/icons on light */
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -57,6 +58,7 @@
 
     --accent: 162 73% 46%;
     --accent-foreground: 222 47% 7%;
+    --accent-strong: 162 70% 55%; /* lighter on dark surfaces for contrast */
 
     --destructive: 0 63% 45%;
     --destructive-foreground: 210 40% 98%;

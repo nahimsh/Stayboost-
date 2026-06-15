@@ -2,16 +2,18 @@ import { Check, Minus } from "lucide-react";
 import { PLAN_LIST } from "@stayboost/domain";
 import { getDictionary } from "@stayboost/i18n";
 
-const t = getDictionary().pricing;
+const dict = getDictionary();
+const t = dict.pricing;
+const a11y = dict.common.a11y;
 
 type CellValue = boolean | string;
 
 function Cell({ value }: { readonly value: CellValue }): React.JSX.Element {
   if (value === true) {
-    return <Check className="mx-auto text-accent" aria-label="Included" />;
+    return <Check className="mx-auto text-accent-strong" role="img" aria-label={a11y.included} />;
   }
   if (value === false) {
-    return <Minus className="mx-auto text-muted-foreground" aria-label="Not included" />;
+    return <Minus className="mx-auto text-muted-foreground" role="img" aria-label={a11y.notIncluded} />;
   }
   return <span className="text-sm">{value}</span>;
 }

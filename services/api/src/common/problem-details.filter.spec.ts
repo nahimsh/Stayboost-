@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ArgumentsHost } from "@nestjs/common";
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, InternalServerErrorException } from "@nestjs/common";
 import { z } from "zod";
 import { ProblemDetailsFilter } from "./problem-details.filter";
 
@@ -45,5 +45,14 @@ describe("ProblemDetailsFilter", () => {
     new ProblemDetailsFilter().catch(new Error("secret stack"), host);
     expect(status).toHaveBeenCalledWith(500);
     expect(json.mock.calls[0]?.[0].detail).toBeUndefined();
+  });
+
+  it("does not leak detail for explicit 5xx HttpExceptions", () => {
+    const { host, json, status } = fakeHost();
+    new ProblemDetailsFilter().catch(new InternalServerErrorException("db creds leaked"), host);
+    expect(status).toHaveBeenCalledWith(500);
+    const body = json.mock.calls[0]?.[0];
+    expect(body.detail).toBeUndefined();
+    expect(body.title).toBe("Internal Server Error");
   });
 });

@@ -60,6 +60,10 @@ export class ProblemDetailsFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
+      // Never surface server-error details to clients, even for explicit 5xx.
+      if (status >= 500) {
+        return { type: "about:blank", title: "Internal Server Error", status, instance };
+      }
       const res = exception.getResponse();
       const detail =
         typeof res === "string"

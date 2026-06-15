@@ -3,8 +3,19 @@ import { getDictionary } from "@stayboost/i18n";
 import { PricingPlans } from "@/components/pricing/pricing-plans";
 import { FeatureMatrix } from "@/components/pricing/feature-matrix";
 import { PricingFaq } from "@/components/pricing/pricing-faq";
+import { JsonLd } from "@/components/seo/json-ld";
 
 const t = getDictionary().pricing;
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: t.faq.items.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
+};
 
 export const metadata: Metadata = {
   title: t.meta.title,
@@ -26,6 +37,7 @@ export default function PricingPage(): React.JSX.Element {
       </section>
       <FeatureMatrix />
       <PricingFaq />
+      <JsonLd data={faqLd} />
     </>
   );
 }

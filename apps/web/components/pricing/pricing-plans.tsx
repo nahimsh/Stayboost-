@@ -53,7 +53,7 @@ export function PricingPlans(): React.JSX.Element {
             />
             {value === "monthly" ? t.billing.monthly : t.billing.annual}
             {value === "annual" ? (
-              <span className="ml-2 hidden text-xs text-accent sm:inline">{t.billing.save}</span>
+              <span className="ml-2 hidden text-xs text-accent-strong sm:inline">{t.billing.save}</span>
             ) : null}
           </label>
         ))}
@@ -88,7 +88,7 @@ export function PricingPlans(): React.JSX.Element {
                 ) : null}
 
                 <p className="mt-4 flex items-center gap-2 text-sm">
-                  <Check className="text-accent" aria-hidden />
+                  <Check className="text-accent-strong" aria-hidden />
                   {propertiesLabel(plan)}
                 </p>
 

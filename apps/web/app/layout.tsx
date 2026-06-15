@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { DEFAULT_LOCALE, textDirection } from "@stayboost/i18n";
+import { DEFAULT_LOCALE, getDictionary, textDirection } from "@stayboost/i18n";
+import { JsonLd } from "@/components/seo/json-ld";
 import "./globals.css";
 
 const inter = Inter({
@@ -45,14 +46,21 @@ export default function RootLayout({
 }: {
   readonly children: React.ReactNode;
 }): React.JSX.Element {
+  const t = getDictionary().common;
+  const organizationLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: t.brand,
+    description: t.tagline,
+    url: siteUrl,
+    logo: `${siteUrl}/icon.svg`,
+  };
   return (
-    <html
-      lang={DEFAULT_LOCALE}
-      dir={textDirection(DEFAULT_LOCALE)}
-      className={inter.variable}
-      suppressHydrationWarning
-    >
-      <body className="min-h-dvh font-sans">{children}</body>
+    <html lang={DEFAULT_LOCALE} dir={textDirection(DEFAULT_LOCALE)} className={inter.variable}>
+      <body className="min-h-dvh font-sans">
+        {children}
+        <JsonLd data={organizationLd} />
+      </body>
     </html>
   );
 }

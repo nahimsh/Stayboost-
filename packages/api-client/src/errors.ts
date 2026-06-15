@@ -38,7 +38,8 @@ export async function errorFromResponse(response: Response): Promise<ApiError> {
   }
   return new ApiError({
     status: response.status,
-    title: problem.title ?? response.statusText,
+    // statusText is empty over HTTP/2 — fall back to a status-derived string.
+    title: problem.title ?? (response.statusText || `HTTP ${response.status}`),
     ...(problem.detail !== undefined ? { detail: problem.detail } : {}),
     ...(problem.errors !== undefined ? { fieldErrors: problem.errors } : {}),
   });

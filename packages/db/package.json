@@ -9,9 +9,11 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "postinstall": "prisma generate",
     "generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
+    "lint": "eslint src --max-warnings 0",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
