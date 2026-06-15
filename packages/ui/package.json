@@ -1,0 +1,38 @@
+{
+  "name": "@stayboost/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles/globals.css"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@stayboost/utils": "workspace:*",
+    "class-variance-authority": "0.7.1",
+    "lucide-react": "0.468.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@stayboost/config": "workspace:*",
+    "@testing-library/react": "16.1.0",
+    "@testing-library/jest-dom": "6.6.3",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.1",
+    "happy-dom": "15.11.7",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
+  }
+}

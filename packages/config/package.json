@@ -1,0 +1,22 @@
+{
+  "name": "@stayboost/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tailwind": "./tailwind-preset.cjs",
+    "./eslint": "./eslint-preset.cjs",
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/next.json": "./tsconfig/next.json"
+  },
+  "files": [
+    "tailwind-preset.cjs",
+    "eslint-preset.cjs",
+    "tsconfig"
+  ],
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "8.18.1",
+    "@typescript-eslint/parser": "8.18.1",
+    "tailwindcss-animate": "1.0.7"
+  }
+}
