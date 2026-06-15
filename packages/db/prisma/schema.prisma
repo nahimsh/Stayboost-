@@ -15,6 +15,44 @@ datasource db {
   extensions = [pgvector(map: "vector")]
 }
 
+/// Anonymous AI Property Analyzer result, addressable by a claim token. Created
+/// pre-signup (org_id null); attached to an org when the visitor signs up.
+model AnalyzerReport {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  orgId     String?  @map("org_id") @db.Uuid
+  input     Json
+  report    Json
+  engine    String
+  model     String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([createdAt])
+  @@index([orgId])
+  @@map("analyzer_reports")
+}
+
+/// Audit log of every AI action (golden rule #2). org_id is null for pre-signup
+/// actions like the public Analyzer; populated once a tenant context exists.
+model AiAction {
+  id         String   @id @default(uuid()) @db.Uuid
+  orgId      String?  @map("org_id") @db.Uuid
+  agent      String
+  actionType String   @map("action_type")
+  input      Json
+  output     Json
+  rationale  String?
+  model      String
+  engine     String?
+  status     String
+  costMinor  BigInt?  @map("cost_minor")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([orgId, createdAt])
+  @@index([agent, createdAt])
+  @@map("ai_actions")
+}
+
 /// Inbound contact / sales lead captured before signup. Platform-level (not
 /// tenant-owned): only internal/admin contexts read it.
 model ContactLead {

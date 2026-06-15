@@ -1,4 +1,4 @@
-import type { ContactLeadInput } from "@stayboost/domain";
+import type { ContactLeadInput, GrowthReport, PropertyProfileInput } from "@stayboost/domain";
 import { errorFromResponse } from "./errors";
 
 export interface ApiClientOptions {
@@ -12,9 +12,18 @@ export interface ContactResponse {
   readonly accepted: true;
 }
 
+export interface AnalyzerResult {
+  readonly token: string;
+  readonly report: GrowthReport;
+}
+
 export interface ApiClient {
   readonly contact: {
     submit(input: ContactLeadInput): Promise<ContactResponse>;
+  };
+  readonly analyzer: {
+    run(input: PropertyProfileInput): Promise<AnalyzerResult>;
+    getReport(token: string): Promise<AnalyzerResult>;
   };
 }
 
@@ -22,21 +31,30 @@ export function createApiClient({ baseUrl, fetch: fetchImpl }: ApiClientOptions)
   const doFetch = fetchImpl ?? globalThis.fetch;
   const url = (path: string): string => `${baseUrl.replace(/\/$/, "")}${path}`;
 
-  async function post<T>(path: string, body: unknown): Promise<T> {
-    const response = await doFetch(url(path), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  async function request<T>(path: string, init?: RequestInit): Promise<T> {
+    const response = await doFetch(url(path), init);
     if (!response.ok) {
       throw await errorFromResponse(response);
     }
     return (await response.json()) as T;
   }
 
+  function post<T>(path: string, body: unknown): Promise<T> {
+    return request<T>(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  }
+
   return {
     contact: {
       submit: (input) => post<ContactResponse>("/v1/contact", input),
+    },
+    analyzer: {
+      run: (input) => post<AnalyzerResult>("/v1/analyzer/run", input),
+      getReport: (token) =>
+        request<AnalyzerResult>(`/v1/analyzer/reports/${encodeURIComponent(token)}`),
     },
   };
 }

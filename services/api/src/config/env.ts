@@ -12,6 +12,8 @@ const envSchema = z
     DATABASE_URL: z.string().url().optional(),
     REDIS_URL: z.string().url().optional(),
     RESEND_API_KEY: z.string().optional(),
+    AI_SERVICE_URL: z.string().url().default("http://localhost:8000"),
+    AI_SERVICE_TOKEN: z.string().optional(),
     CONTACT_INBOX: z.string().email().default("team@stayboost.com"),
     EMAIL_FROM: z.string().default("StayBoost <hello@stayboost.com>"),
     MAX_BODY_SIZE: z.string().default("16kb"),

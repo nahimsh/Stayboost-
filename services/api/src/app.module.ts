@@ -6,7 +6,9 @@ import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis"
 import { loadEnv } from "./config/env";
 import { PrismaModule } from "./prisma/prisma.module";
 import { MailModule } from "./mail/mail.module";
+import { AiModule } from "./ai/ai.module";
 import { ContactModule } from "./contact/contact.module";
+import { AnalyzerModule } from "./analyzer/analyzer.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -30,7 +32,9 @@ import { HealthController } from "./health/health.controller";
     }),
     PrismaModule,
     MailModule,
+    AiModule,
     ContactModule,
+    AnalyzerModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -13,13 +13,16 @@ Production-ready code only, no placeholders.
 | 1 | **Landing Page** | ✅ done |
 | 2 | **Pricing Page** (4 tiers, single-sourced config) | ✅ done |
 | 3 | **Contact Page** (NestJS API + email + lead capture) | ✅ done |
-| 4 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ⏳ next |
-| 5 | **AI Property Analyzer** (FastAPI agent + report + claim-on-signup) | ⏳ |
+| 4 | **AI Property Analyzer** (FastAPI agent + report) | ✅ done |
+| 5 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ⏳ next |
 | 6 | **Dashboard Skeleton** (Command Center shell, real empty states) | ⏳ |
 
-> Order note: Pricing was built before Contact because it is frontend-only and
-> completes the marketing site's internal links. The NestJS API + FastAPI AI
-> service are introduced next for Contact → Auth → Analyzer.
+> Order notes: Pricing was built before Contact because it is frontend-only.
+> The AI Property Analyzer was built before Authentication (per the user's
+> priority order) — the guided form runs without an account; claim-on-signup
+> wiring lands with Authentication. The FastAPI AI service (`services/ai`) ships
+> with a Claude engine (primary) + a deterministic heuristic engine (offline
+> baseline / dev / CI fallback), behind the core API's `/v1/analyzer` routes.
 
 ## Decisions (see ADR 0001)
 
