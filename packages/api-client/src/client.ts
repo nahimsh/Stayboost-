@@ -1,6 +1,7 @@
 import type {
   AuthUser,
   ContactLeadInput,
+  DashboardSnapshot,
   GrowthReport,
   LoginInput,
   MagicLinkConsumeInput,
@@ -54,6 +55,7 @@ export interface ApiClient {
     consumeMagicLink(input: MagicLinkConsumeInput): Promise<AuthResponse>;
     googleUrl(): Promise<{ url: string }>;
   };
+  readonly dashboard: { snapshot(): Promise<DashboardSnapshot> };
 }
 
 export function createApiClient({ baseUrl, fetch: fetchImpl, csrfToken }: ApiClientOptions): ApiClient {
@@ -99,6 +101,9 @@ export function createApiClient({ baseUrl, fetch: fetchImpl, csrfToken }: ApiCli
       requestMagicLink: (input) => post<{ ok: true }>("/v1/auth/magic-link", input),
       consumeMagicLink: (input) => post<AuthResponse>("/v1/auth/magic-link/consume", input),
       googleUrl: () => request<{ url: string }>("/v1/auth/google"),
+    },
+    dashboard: {
+      snapshot: () => request<DashboardSnapshot>("/v1/dashboard"),
     },
   };
 }

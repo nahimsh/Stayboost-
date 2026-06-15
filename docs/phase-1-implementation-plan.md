@@ -15,7 +15,11 @@ Production-ready code only, no placeholders.
 | 3 | **Contact Page** (NestJS API + email + lead capture) | ✅ done |
 | 4 | **AI Property Analyzer** (FastAPI agent + report) | ✅ done |
 | 5 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ✅ done |
-| 6 | **Dashboard Skeleton** (Command Center shell, real empty states) | ⏳ next |
+| 6 | **Dashboard Skeleton** (Command Center shell, 8 widgets, sample-data API) | ✅ done |
+
+**Phase 1 (Public Foundation) is complete.** Next: replace the dashboard's
+sample-data provider with live Reservations/Revenue/Reviews modules, and wire
+analyzer claim-on-signup, as the operational MVP (next phase) begins.
 
 > Order notes: Pricing was built before Contact because it is frontend-only.
 > The AI Property Analyzer was built before Authentication (per the user's

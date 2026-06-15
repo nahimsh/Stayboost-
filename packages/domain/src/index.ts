@@ -75,3 +75,27 @@ export {
   type PillarInsight,
   type GrowthReport,
 } from "./analyzer/growth-report";
+
+export {
+  STAY_STATUSES,
+  LEAD_SOURCES,
+  NOTIFICATION_TYPES,
+  trendSchema,
+  revenueOverviewSchema,
+  occupancyWidgetSchema,
+  staySchema,
+  aiRecommendationSchema,
+  propertyHealthSchema,
+  leadSchema,
+  notificationSchema,
+  dashboardSnapshotSchema,
+  type Trend,
+  type RevenueOverview,
+  type OccupancyWidget,
+  type Stay,
+  type AiRecommendation,
+  type PropertyHealth,
+  type Lead,
+  type NotificationItem,
+  type DashboardSnapshot,
+} from "./dashboard/dashboard";

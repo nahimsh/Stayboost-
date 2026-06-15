@@ -10,6 +10,7 @@ import { AiModule } from "./ai/ai.module";
 import { AuthModule } from "./auth/auth.module";
 import { ContactModule } from "./contact/contact.module";
 import { AnalyzerModule } from "./analyzer/analyzer.module";
+import { DashboardModule } from "./dashboard/dashboard.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -37,6 +38,7 @@ import { HealthController } from "./health/health.controller";
     AuthModule,
     ContactModule,
     AnalyzerModule,
+    DashboardModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
