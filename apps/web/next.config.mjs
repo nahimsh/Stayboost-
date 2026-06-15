@@ -8,6 +8,7 @@ const nextConfig = {
     "@stayboost/utils",
     "@stayboost/i18n",
     "@stayboost/domain",
+    "@stayboost/api-client",
   ],
   experimental: {
     optimizePackageImports: ["lucide-react"],

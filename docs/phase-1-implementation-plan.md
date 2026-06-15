@@ -12,8 +12,8 @@ Production-ready code only, no placeholders.
 | 0 | Monorepo foundation (workspace, design system, i18n, utils, CI) | ✅ done |
 | 1 | **Landing Page** | ✅ done |
 | 2 | **Pricing Page** (4 tiers, single-sourced config) | ✅ done |
-| 3 | **Contact Page** (NestJS API + email + lead capture) | ⏳ next |
-| 4 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ⏳ |
+| 3 | **Contact Page** (NestJS API + email + lead capture) | ✅ done |
+| 4 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ⏳ next |
 | 5 | **AI Property Analyzer** (FastAPI agent + report + claim-on-signup) | ⏳ |
 | 6 | **Dashboard Skeleton** (Command Center shell, real empty states) | ⏳ |
 

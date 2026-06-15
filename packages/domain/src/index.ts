@@ -10,3 +10,11 @@ export {
   type PlanId,
   type BillingPeriod,
 } from "./billing/plans";
+
+export {
+  CONTACT_REASONS,
+  contactReasonSchema,
+  contactLeadInputSchema,
+  type ContactReason,
+  type ContactLeadInput,
+} from "./contact/contact-lead";

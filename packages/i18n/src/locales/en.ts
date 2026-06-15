@@ -210,6 +210,43 @@ export const en = {
       ],
     },
   },
+  contact: {
+    meta: {
+      title: "Contact",
+      description: "Talk to the StayBoost team about plans, partnerships or support.",
+    },
+    hero: {
+      title: "Let's talk.",
+      subtitle:
+        "Questions about plans, a portfolio of properties, or a partnership? Send us a note and we'll get back to you fast.",
+    },
+    form: {
+      name: "Your name",
+      email: "Work email",
+      company: "Company (optional)",
+      propertyCount: "Number of properties (optional)",
+      reason: "How can we help?",
+      message: "Message",
+      messagePlaceholder: "Tell us about your properties and what you'd like to achieve.",
+      submit: "Send message",
+      submitting: "Sending…",
+      reasons: {
+        sales: "Plans & pricing",
+        support: "Product support",
+        partnership: "Partnership",
+        other: "Something else",
+      },
+    },
+    success: {
+      title: "Message sent",
+      body: "Thanks for reaching out — we've emailed you a confirmation and will be in touch shortly.",
+      again: "Send another message",
+    },
+    error: {
+      generic: "Something went wrong sending your message. Please try again.",
+      required: "Please fix the highlighted fields.",
+    },
+  },
 } as const;
 
 export type Dictionary = typeof en;

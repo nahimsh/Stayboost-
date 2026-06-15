@@ -1,0 +1,35 @@
+// StayBoost data model. Multi-tenant tables carry org_id + Postgres RLS;
+// platform-level tables (e.g. pre-signup leads) do not. Models are added per
+// feature — this currently covers Phase 1's Contact feature. Money is stored as
+// integer minor units; timestamps are UTC.
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native"]
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+/// Inbound contact / sales lead captured before signup. Platform-level (not
+/// tenant-owned): only internal/admin contexts read it.
+model ContactLead {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  email         String
+  company       String?
+  propertyCount Int?     @map("property_count")
+  reason        String
+  message       String
+  source        String   @default("web")
+  status        String   @default("new")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([createdAt])
+  @@index([reason, status])
+  @@map("contact_leads")
+}
