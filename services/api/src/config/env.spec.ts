@@ -23,6 +23,8 @@ describe("loadEnv", () => {
       DATABASE_URL: "postgresql://u:p@db:5432/sb",
       REDIS_URL: "redis://cache:6379",
       RESEND_API_KEY: "re_test_key",
+      JWT_SECRET: "a-strong-production-secret-at-least-32-chars",
+      AUTH_COOKIE_SECURE: "true",
     });
     expect(env.NODE_ENV).toBe("production");
   });

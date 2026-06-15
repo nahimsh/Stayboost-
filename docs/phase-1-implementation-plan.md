@@ -14,8 +14,8 @@ Production-ready code only, no placeholders.
 | 2 | **Pricing Page** (4 tiers, single-sourced config) | ✅ done |
 | 3 | **Contact Page** (NestJS API + email + lead capture) | ✅ done |
 | 4 | **AI Property Analyzer** (FastAPI agent + report) | ✅ done |
-| 5 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ⏳ next |
-| 6 | **Dashboard Skeleton** (Command Center shell, real empty states) | ⏳ |
+| 5 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ✅ done |
+| 6 | **Dashboard Skeleton** (Command Center shell, real empty states) | ⏳ next |
 
 > Order notes: Pricing was built before Contact because it is frontend-only.
 > The AI Property Analyzer was built before Authentication (per the user's

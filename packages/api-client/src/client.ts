@@ -1,10 +1,24 @@
-import type { ContactLeadInput, GrowthReport, PropertyProfileInput } from "@stayboost/domain";
+import type {
+  AuthUser,
+  ContactLeadInput,
+  GrowthReport,
+  LoginInput,
+  MagicLinkConsumeInput,
+  MagicLinkRequestInput,
+  PropertyProfileInput,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
+  SignupInput,
+  VerifyEmailInput,
+} from "@stayboost/domain";
 import { errorFromResponse } from "./errors";
 
 export interface ApiClientOptions {
   readonly baseUrl: string;
   /** Injectable for tests / SSR; defaults to the global fetch. */
   readonly fetch?: typeof fetch;
+  /** Returns the CSRF token (read from the readable cookie) for protected mutations. */
+  readonly csrfToken?: () => string | undefined;
 }
 
 export interface ContactResponse {
@@ -17,33 +31,51 @@ export interface AnalyzerResult {
   readonly report: GrowthReport;
 }
 
+export interface AuthResponse {
+  readonly user: AuthUser;
+  readonly csrfToken: string;
+}
+
 export interface ApiClient {
-  readonly contact: {
-    submit(input: ContactLeadInput): Promise<ContactResponse>;
-  };
+  readonly contact: { submit(input: ContactLeadInput): Promise<ContactResponse> };
   readonly analyzer: {
     run(input: PropertyProfileInput): Promise<AnalyzerResult>;
     getReport(token: string): Promise<AnalyzerResult>;
   };
+  readonly auth: {
+    signup(input: SignupInput): Promise<AuthResponse>;
+    login(input: LoginInput): Promise<AuthResponse>;
+    logout(): Promise<{ ok: true }>;
+    me(): Promise<AuthUser>;
+    verifyEmail(input: VerifyEmailInput): Promise<{ ok: true }>;
+    forgotPassword(input: RequestPasswordResetInput): Promise<{ ok: true }>;
+    resetPassword(input: ResetPasswordInput): Promise<{ ok: true }>;
+    requestMagicLink(input: MagicLinkRequestInput): Promise<{ ok: true }>;
+    consumeMagicLink(input: MagicLinkConsumeInput): Promise<AuthResponse>;
+    googleUrl(): Promise<{ url: string }>;
+  };
 }
 
-export function createApiClient({ baseUrl, fetch: fetchImpl }: ApiClientOptions): ApiClient {
+export function createApiClient({ baseUrl, fetch: fetchImpl, csrfToken }: ApiClientOptions): ApiClient {
   const doFetch = fetchImpl ?? globalThis.fetch;
   const url = (path: string): string => `${baseUrl.replace(/\/$/, "")}${path}`;
 
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
-    const response = await doFetch(url(path), init);
-    if (!response.ok) {
-      throw await errorFromResponse(response);
-    }
+    // credentials:include sends/receives the auth cookies.
+    const response = await doFetch(url(path), { credentials: "include", ...init });
+    if (!response.ok) throw await errorFromResponse(response);
     return (await response.json()) as T;
   }
 
-  function post<T>(path: string, body: unknown): Promise<T> {
+  function post<T>(path: string, body?: unknown, withCsrf = false): Promise<T> {
+    const csrf = withCsrf ? csrfToken?.() : undefined;
     return request<T>(path, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        ...(csrf ? { "X-CSRF-Token": csrf } : {}),
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });
   }
 
@@ -55,6 +87,18 @@ export function createApiClient({ baseUrl, fetch: fetchImpl }: ApiClientOptions)
       run: (input) => post<AnalyzerResult>("/v1/analyzer/run", input),
       getReport: (token) =>
         request<AnalyzerResult>(`/v1/analyzer/reports/${encodeURIComponent(token)}`),
+    },
+    auth: {
+      signup: (input) => post<AuthResponse>("/v1/auth/signup", input),
+      login: (input) => post<AuthResponse>("/v1/auth/login", input),
+      logout: () => post<{ ok: true }>("/v1/auth/logout", undefined, true),
+      me: () => request<AuthUser>("/v1/auth/me"),
+      verifyEmail: (input) => post<{ ok: true }>("/v1/auth/verify-email", input),
+      forgotPassword: (input) => post<{ ok: true }>("/v1/auth/password/forgot", input),
+      resetPassword: (input) => post<{ ok: true }>("/v1/auth/password/reset", input),
+      requestMagicLink: (input) => post<{ ok: true }>("/v1/auth/magic-link", input),
+      consumeMagicLink: (input) => post<AuthResponse>("/v1/auth/magic-link/consume", input),
+      googleUrl: () => request<{ url: string }>("/v1/auth/google"),
     },
   };
 }

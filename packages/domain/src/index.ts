@@ -34,6 +34,32 @@ export {
 } from "./analyzer/property-profile";
 
 export {
+  ROLES,
+  ROLE_RANK,
+  roleSchema,
+  roleAtLeast,
+  passwordSchema,
+  emailSchema,
+  signupInputSchema,
+  loginInputSchema,
+  requestPasswordResetInputSchema,
+  resetPasswordInputSchema,
+  verifyEmailInputSchema,
+  magicLinkRequestInputSchema,
+  magicLinkConsumeInputSchema,
+  authUserSchema,
+  type Role,
+  type SignupInput,
+  type LoginInput,
+  type RequestPasswordResetInput,
+  type ResetPasswordInput,
+  type VerifyEmailInput,
+  type MagicLinkRequestInput,
+  type MagicLinkConsumeInput,
+  type AuthUser,
+} from "./auth/auth";
+
+export {
   PILLARS,
   SEVERITIES,
   pillarSchema,

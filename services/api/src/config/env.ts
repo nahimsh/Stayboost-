@@ -17,6 +17,19 @@ const envSchema = z
     CONTACT_INBOX: z.string().email().default("team@stayboost.com"),
     EMAIL_FROM: z.string().default("StayBoost <hello@stayboost.com>"),
     MAX_BODY_SIZE: z.string().default("16kb"),
+    // --- Auth ---
+    JWT_SECRET: z.string().min(32).default("dev-only-insecure-secret-change-me-32chars"),
+    JWT_ACCESS_TTL: z.string().default("15m"),
+    REFRESH_TTL_DAYS: z.coerce.number().int().positive().default(30),
+    AUTH_COOKIE_SECURE: z
+      .string()
+      .default("false")
+      .transform((v) => v === "true"),
+    COOKIE_DOMAIN: z.string().optional(),
+    APP_URL: z.string().url().default("http://localhost:3000"),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
+    GOOGLE_REDIRECT_URI: z.string().url().optional(),
   })
   .superRefine((env, ctx) => {
     // In production, dependencies that have safe dev fallbacks must be present.
@@ -34,6 +47,20 @@ const envSchema = z
           message: `${key} is required in production`,
         });
       }
+    }
+    if (env.JWT_SECRET.startsWith("dev-only")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["JWT_SECRET"],
+        message: "JWT_SECRET must be set to a strong secret in production",
+      });
+    }
+    if (!env.AUTH_COOKIE_SECURE) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["AUTH_COOKIE_SECURE"],
+        message: "AUTH_COOKIE_SECURE must be true in production (cookies require HTTPS)",
+      });
     }
   });
 

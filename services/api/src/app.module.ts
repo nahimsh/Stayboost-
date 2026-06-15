@@ -7,6 +7,7 @@ import { loadEnv } from "./config/env";
 import { PrismaModule } from "./prisma/prisma.module";
 import { MailModule } from "./mail/mail.module";
 import { AiModule } from "./ai/ai.module";
+import { AuthModule } from "./auth/auth.module";
 import { ContactModule } from "./contact/contact.module";
 import { AnalyzerModule } from "./analyzer/analyzer.module";
 import { HealthController } from "./health/health.controller";
@@ -33,6 +34,7 @@ import { HealthController } from "./health/health.controller";
     PrismaModule,
     MailModule,
     AiModule,
+    AuthModule,
     ContactModule,
     AnalyzerModule,
   ],

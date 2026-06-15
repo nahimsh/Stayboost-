@@ -47,3 +47,31 @@ describe("createApiClient.contact.submit", () => {
     expect((error as ApiError).fieldErrors[0]?.field).toBe("email");
   });
 });
+
+describe("createApiClient.auth", () => {
+  it("logs in with credentials included and parses the AuthResponse", async () => {
+    const body = { user: { id: "u1", email: "u@e.com", name: "U", emailVerified: false, organizations: [] }, csrfToken: "csrf-1" };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body, { status: 200 }));
+    const client = createApiClient({ baseUrl: "http://api.test", fetch: fetchMock });
+
+    const result = await client.auth.login({ email: "u@e.com", password: "secret" });
+
+    expect(result.csrfToken).toBe("csrf-1");
+    const [, options] = fetchMock.mock.calls[0] ?? [];
+    expect(options?.credentials).toBe("include");
+  });
+
+  it("sends the CSRF header on logout (protected mutation)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ ok: true }, { status: 200 }));
+    const client = createApiClient({
+      baseUrl: "http://api.test",
+      fetch: fetchMock,
+      csrfToken: () => "csrf-token-xyz",
+    });
+
+    await client.auth.logout();
+
+    const [, options] = fetchMock.mock.calls[0] ?? [];
+    expect((options?.headers as Record<string, string>)["X-CSRF-Token"]).toBe("csrf-token-xyz");
+  });
+});

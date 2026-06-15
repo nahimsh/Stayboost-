@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { Logger, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { json, urlencoded } from "express";
 import { AppModule } from "./app.module";
 import { ProblemDetailsFilter } from "./common/problem-details.filter";
@@ -14,6 +15,9 @@ async function bootstrap(): Promise<void> {
 
   app.use(json({ limit: env.MAX_BODY_SIZE }));
   app.use(urlencoded({ extended: true, limit: env.MAX_BODY_SIZE }));
+  app.use(cookieParser());
+  // Accurate req.ip behind a load balancer.
+  app.getHttpAdapter().getInstance().set("trust proxy", 1);
 
   app.use(
     helmet({
