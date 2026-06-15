@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@stayboost/domain": "workspace:*",
     "@stayboost/i18n": "workspace:*",
     "@stayboost/ui": "workspace:*",
     "@stayboost/utils": "workspace:*",

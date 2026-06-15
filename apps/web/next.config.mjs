@@ -3,7 +3,12 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   // Workspace packages ship as TypeScript source; Next compiles them.
-  transpilePackages: ["@stayboost/ui", "@stayboost/utils", "@stayboost/i18n"],
+  transpilePackages: [
+    "@stayboost/ui",
+    "@stayboost/utils",
+    "@stayboost/i18n",
+    "@stayboost/domain",
+  ],
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

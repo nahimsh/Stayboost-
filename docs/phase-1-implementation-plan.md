@@ -11,13 +11,15 @@ Production-ready code only, no placeholders.
 |---|---|---|
 | 0 | Monorepo foundation (workspace, design system, i18n, utils, CI) | ✅ done |
 | 1 | **Landing Page** | ✅ done |
-| 2 | **Contact Page** (NestJS API + email + lead capture) | ⏳ next |
-| 3 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ⏳ |
-| 4 | **AI Property Analyzer** (FastAPI agent + report + claim-on-signup) | ⏳ |
-| 5 | **Dashboard Skeleton** (Command Center shell, real empty states) | ⏳ |
-| 6 | **Pricing Page** (4 tiers, single-sourced config) | ⏳ |
+| 2 | **Pricing Page** (4 tiers, single-sourced config) | ✅ done |
+| 3 | **Contact Page** (NestJS API + email + lead capture) | ⏳ next |
+| 4 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ⏳ |
+| 5 | **AI Property Analyzer** (FastAPI agent + report + claim-on-signup) | ⏳ |
+| 6 | **Dashboard Skeleton** (Command Center shell, real empty states) | ⏳ |
 
-> Pricing/Auth/Analyzer routes are linked from the Landing Page as they land.
+> Order note: Pricing was built before Contact because it is frontend-only and
+> completes the marketing site's internal links. The NestJS API + FastAPI AI
+> service are introduced next for Contact → Auth → Analyzer.
 
 ## Decisions (see ADR 0001)
 

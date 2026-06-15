@@ -81,6 +81,135 @@ export const en = {
       secondary: "Talk to us",
     },
   },
+  pricing: {
+    meta: {
+      title: "Pricing",
+      description:
+        "Simple, per-property pricing that scales with your success. Start free, upgrade as you grow.",
+    },
+    hero: {
+      title: "Pricing that scales with your success.",
+      subtitle: "Start free. Upgrade as you grow. No credit card required to begin.",
+    },
+    billing: {
+      monthly: "Monthly",
+      annual: "Annual",
+      save: "Save ~20%",
+      toggleLabel: "Billing period",
+    },
+    units: {
+      perProperty: "per property / month",
+      free: "Free",
+      custom: "Custom",
+      billedAnnually: "billed annually",
+      propertiesUpTo: "Up to {count} properties",
+      propertyOne: "1 property",
+      propertiesUnlimited: "Unlimited properties",
+    },
+    plans: {
+      starter: {
+        name: "Starter",
+        tagline: "For a single homestay or villa just getting started.",
+        cta: "Start free",
+      },
+      growth: {
+        name: "Growth",
+        tagline: "For growing hosts and small hotels ready to automate.",
+        cta: "Start free trial",
+      },
+      pro: {
+        name: "Pro",
+        tagline: "For hotels and operators who want the full AI growth engine.",
+        cta: "Start free trial",
+        badge: "Most popular",
+      },
+      portfolio: {
+        name: "Portfolio",
+        tagline: "For property managers running a portfolio across owners.",
+        cta: "Talk to sales",
+      },
+    },
+    matrix: {
+      title: "Compare every plan",
+      caption: "StayBoost plan feature comparison",
+      featureColumn: "Feature",
+      rows: [
+        {
+          label: "Unified inbox + AI reply drafts",
+          values: { starter: "Limited", growth: true, pro: true, portfolio: true },
+        },
+        {
+          label: "Auto-messaging journeys",
+          values: { starter: "Basic", growth: true, pro: true, portfolio: true },
+        },
+        {
+          label: "AI review responses",
+          values: { starter: "Limited", growth: true, pro: true, portfolio: true },
+        },
+        {
+          label: "Dynamic pricing",
+          values: { starter: false, growth: "Suggestions", pro: "Full + auto", portfolio: "Full + auto" },
+        },
+        {
+          label: "Demand forecast & market intel",
+          values: { starter: false, growth: "Basic", pro: true, portfolio: "+ Market intel" },
+        },
+        {
+          label: "Direct booking funnel",
+          values: { starter: false, growth: true, pro: true, portfolio: "+ White-label" },
+        },
+        {
+          label: "24/7 AI concierge",
+          values: { starter: false, growth: true, pro: true, portfolio: true },
+        },
+        {
+          label: "Campaigns & upsells",
+          values: { starter: false, growth: "Basic", pro: true, portfolio: true },
+        },
+        {
+          label: "No-code automation builder",
+          values: { starter: false, growth: false, pro: true, portfolio: true },
+        },
+        {
+          label: "Portfolio command center",
+          values: { starter: false, growth: false, pro: false, portfolio: true },
+        },
+        {
+          label: "Owner statements (multi-owner)",
+          values: { starter: false, growth: false, pro: false, portfolio: true },
+        },
+        {
+          label: "Public API & webhooks",
+          values: { starter: false, growth: "Limited", pro: true, portfolio: true },
+        },
+        {
+          label: "Support",
+          values: { starter: "Community", growth: "Email", pro: "Priority", portfolio: "Dedicated CSM" },
+        },
+      ],
+    },
+    faq: {
+      title: "Frequently asked questions",
+      items: [
+        {
+          q: "Do I need a credit card to start?",
+          a: "No. The Starter plan is free forever and paid plans include a 14-day trial — no card required to begin.",
+        },
+        {
+          q: "How does per-property pricing work?",
+          a: "You pay per active property per month. Add or remove properties anytime; annual billing saves roughly 20%.",
+        },
+        {
+          q: "What counts toward AI usage?",
+          a: "Each plan includes a generous allowance of AI messages and actions. Heavy usage is metered transparently so you only pay for what you use.",
+        },
+        {
+          q: "Can I manage many properties for different owners?",
+          a: "Yes — the Portfolio plan adds a cross-property command center and per-owner statements, priced per unit.",
+        },
+      ],
+    },
+  },
 } as const;
 
 export type Dictionary = typeof en;
