@@ -37,9 +37,18 @@ const CURRENCY = "EUR";
  * real Reservations / Revenue / Reviews modules will replace — the API contract
  * and the frontend stay unchanged when live data lands. Marked `demo: true`.
  */
+export interface DashboardContext {
+  propertyName?: string;
+  propertyType?: string;
+  totalUnits?: number;
+}
+
 @Injectable()
 export class SampleDashboardProvider {
-  build(propertyName = "Sea Breeze Villa"): DashboardSnapshot {
+  build(ctx: DashboardContext = {}): DashboardSnapshot {
+    const propertyName = ctx.propertyName ?? "Sea Breeze Villa";
+    const totalUnits = Math.max(1, ctx.totalUnits ?? 10);
+    const occupiedUnits = Math.round(totalUnits * 0.7);
     const rng = mulberry32(42);
     const dayOfMonth = new Date().getUTCDate();
 
@@ -52,7 +61,7 @@ export class SampleDashboardProvider {
     const monthToDateMinor = dailyMinor.reduce((sum, v) => sum + v, 0);
 
     return {
-      property: { id: "demo-property", name: propertyName, type: "villa" },
+      property: { id: "demo-property", name: propertyName, type: ctx.propertyType ?? "villa" },
       generatedAt: new Date().toISOString(),
       demo: true,
       revenue: {
@@ -66,8 +75,8 @@ export class SampleDashboardProvider {
       occupancy: {
         currentPct: 72,
         targetPct: 80,
-        occupiedUnits: 7,
-        totalUnits: 10,
+        occupiedUnits,
+        totalUnits,
         next7Days: Array.from({ length: 7 }, (_, i) => ({
           date: isoDateOffset(i),
           pct: Math.round(55 + rng() * 40),

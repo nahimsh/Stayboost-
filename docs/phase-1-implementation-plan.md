@@ -17,9 +17,14 @@ Production-ready code only, no placeholders.
 | 5 | **Authentication** (NestJS-owned, org/RBAC, sessions) | ✅ done |
 | 6 | **Dashboard Skeleton** (Command Center shell, 8 widgets, sample-data API) | ✅ done |
 
-**Phase 1 (Public Foundation) is complete.** Next: replace the dashboard's
-sample-data provider with live Reservations/Revenue/Reviews modules, and wire
-analyzer claim-on-signup, as the operational MVP (next phase) begins.
+| 7 | **Property Setup Wizard** (post-signup onboarding → real Property entity) | ✅ done |
+
+**Phase 1 (Public Foundation) is complete.** The Property Setup Wizard captures
+the property (name, type, location, Airbnb/Booking.com/website URLs, rooms,
+contact) right after signup, creating the tenant-owned `Property` that now powers
+the Dashboard (real name/type/units) and is ready to feed the Analyzer. Next:
+replace the dashboard's sample-data provider with live Reservations/Revenue/
+Reviews modules, and prefill a logged-in Analyzer run from the saved property.
 
 > Order notes: Pricing was built before Contact because it is frontend-only.
 > The AI Property Analyzer was built before Authentication (per the user's

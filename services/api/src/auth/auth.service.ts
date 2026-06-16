@@ -194,17 +194,32 @@ export class AuthService {
       where: { id: userId },
       include: { memberships: { include: { organization: { select: { id: true, name: true } } } } },
     });
+    const primaryOrgId = user.memberships[0]?.orgId;
+    const propertyCount = primaryOrgId
+      ? await this.prisma.property.count({ where: { orgId: primaryOrgId } })
+      : 0;
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       emailVerified: user.emailVerifiedAt !== null,
+      onboardingComplete: propertyCount > 0,
       organizations: user.memberships.map((m) => ({
         orgId: m.orgId,
         orgName: m.organization.name,
         role: m.role as Role,
       })),
     };
+  }
+
+  /** The user's primary (first) active org — the context the onboarding wizard targets. */
+  async getPrimaryOrgId(userId: string): Promise<string | null> {
+    const membership = await this.prisma.membership.findFirst({
+      where: { userId, status: "active" },
+      orderBy: { createdAt: "asc" },
+      select: { orgId: true },
+    });
+    return membership?.orgId ?? null;
   }
 
   private async resolveGoogleUser(profile: GoogleProfile): Promise<{ id: string; email: string } | null> {

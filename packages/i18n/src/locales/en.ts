@@ -473,6 +473,37 @@ export const en = {
     today: "Today",
     tomorrow: "Tomorrow",
   },
+  onboarding: {
+    meta: { title: "Set up your property" },
+    title: "Let's set up your first property",
+    subtitle: "This takes about a minute and powers your dashboard and AI recommendations.",
+    stepLabel: "Step {current} of {total}",
+    steps: {
+      basics: "Property basics",
+      channels: "Listings & website",
+      capacity: "Capacity & contact",
+    },
+    fields: {
+      name: "Property name",
+      type: "Property type",
+      country: "Country",
+      city: "City",
+      airbnbUrl: "Airbnb listing URL",
+      bookingUrl: "Booking.com listing URL",
+      websiteUrl: "Website URL",
+      roomsCount: "Number of rooms / units",
+      contactName: "Contact name",
+      contactEmail: "Contact email",
+      contactPhone: "Contact phone",
+      optional: "optional",
+    },
+    channelsHint: "Add the listings you already have — we'll use them to sharpen your AI report.",
+    back: "Back",
+    next: "Continue",
+    finish: "Finish setup",
+    finishing: "Setting up…",
+    error: "We couldn't save your property. Please check the fields and try again.",
+  },
 } as const;
 
 export type Dictionary = typeof en;

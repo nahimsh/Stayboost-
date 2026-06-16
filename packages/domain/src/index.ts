@@ -99,3 +99,10 @@ export {
   type NotificationItem,
   type DashboardSnapshot,
 } from "./dashboard/dashboard";
+
+export {
+  propertySetupInputSchema,
+  propertySummarySchema,
+  type PropertySetupInput,
+  type PropertySummary,
+} from "./property/property-setup";

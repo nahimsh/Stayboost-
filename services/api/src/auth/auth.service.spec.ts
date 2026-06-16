@@ -28,6 +28,7 @@ function makeHarness() {
     },
     organization: { create: vi.fn().mockResolvedValue({ id: "o1" }) },
     membership: { create: vi.fn() },
+    property: { count: vi.fn().mockResolvedValue(0) },
     session: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     verificationToken: {
       create: vi.fn().mockResolvedValue({}),

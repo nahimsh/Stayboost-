@@ -28,7 +28,10 @@ describe("SampleDashboardProvider", () => {
     expect(s.notifications.length).toBeGreaterThan(0);
   });
 
-  it("uses the passed property name", () => {
-    expect(provider.build("Mountain Lodge").property.name).toBe("Mountain Lodge");
+  it("uses the passed property context", () => {
+    const s = provider.build({ propertyName: "Mountain Lodge", propertyType: "hotel", totalUnits: 24 });
+    expect(s.property.name).toBe("Mountain Lodge");
+    expect(s.property.type).toBe("hotel");
+    expect(s.occupancy.totalUnits).toBe(24);
   });
 });

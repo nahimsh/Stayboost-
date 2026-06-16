@@ -70,6 +70,8 @@ export const authUserSchema = z.object({
   email: z.string(),
   name: z.string(),
   emailVerified: z.boolean(),
+  /** True once the user's primary org has at least one property (wizard done). */
+  onboardingComplete: z.boolean(),
   organizations: z.array(
     z.object({
       orgId: z.string(),

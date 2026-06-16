@@ -39,7 +39,7 @@ export function SignupForm(): React.JSX.Element {
     setSubmitting(true);
     try {
       await api.auth.signup(parsed.data);
-      router.push("/dashboard");
+      router.push("/onboarding"); // new accounts set up their property first
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         setErrors({ email: error.title });

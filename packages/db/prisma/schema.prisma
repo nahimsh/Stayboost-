@@ -29,6 +29,7 @@ model Organization {
   updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   memberships Membership[]
+  properties  Property[]
 
   @@map("organizations")
 }
@@ -70,6 +71,32 @@ model Membership {
   @@unique([orgId, userId])
   @@index([userId])
   @@map("memberships")
+}
+
+/// A property the org operates. Tenant-owned (org_id) + RLS. Created by the
+/// Property Setup Wizard at onboarding; powers the Analyzer and Dashboard.
+model Property {
+  id           String   @id @default(uuid()) @db.Uuid
+  orgId        String   @map("org_id") @db.Uuid
+  name         String
+  type         String
+  country      String
+  city         String
+  airbnbUrl    String?  @map("airbnb_url")
+  bookingUrl   String?  @map("booking_url")
+  websiteUrl   String?  @map("website_url")
+  roomsCount   Int      @map("rooms_count")
+  contactName  String?  @map("contact_name")
+  contactEmail String?  @map("contact_email")
+  contactPhone String?  @map("contact_phone")
+  status       String   @default("active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@map("properties")
 }
 
 /// A refresh-token session. The opaque refresh token is stored hashed; rotation

@@ -7,6 +7,8 @@ import type {
   MagicLinkConsumeInput,
   MagicLinkRequestInput,
   PropertyProfileInput,
+  PropertySetupInput,
+  PropertySummary,
   RequestPasswordResetInput,
   ResetPasswordInput,
   SignupInput,
@@ -56,6 +58,10 @@ export interface ApiClient {
     googleUrl(): Promise<{ url: string }>;
   };
   readonly dashboard: { snapshot(): Promise<DashboardSnapshot> };
+  readonly properties: {
+    create(input: PropertySetupInput): Promise<PropertySummary>;
+    list(): Promise<PropertySummary[]>;
+  };
 }
 
 export function createApiClient({ baseUrl, fetch: fetchImpl, csrfToken }: ApiClientOptions): ApiClient {
@@ -104,6 +110,10 @@ export function createApiClient({ baseUrl, fetch: fetchImpl, csrfToken }: ApiCli
     },
     dashboard: {
       snapshot: () => request<DashboardSnapshot>("/v1/dashboard"),
+    },
+    properties: {
+      create: (input) => post<PropertySummary>("/v1/properties", input, true),
+      list: () => request<PropertySummary[]>("/v1/properties"),
     },
   };
 }

@@ -33,7 +33,12 @@ export function DashboardShell(): React.JSX.Element {
     let active = true;
     (async () => {
       try {
-        const [user, data] = await Promise.all([api.auth.me(), api.dashboard.snapshot()]);
+        const user = await api.auth.me();
+        if (!user.onboardingComplete) {
+          router.replace("/onboarding"); // finish the property wizard first
+          return;
+        }
+        const data = await api.dashboard.snapshot();
         if (active) setState({ kind: "ready", user, data });
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
