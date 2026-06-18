@@ -59,6 +59,14 @@ describe("AnalyzerService", () => {
     expect(actionCreate.mock.calls[0]?.[0].data.agent).toBe("onboarding_scout");
   });
 
+  it("still returns the report when persistence fails (resilient public tool)", async () => {
+    const { service, $transaction } = makeService();
+    $transaction.mockRejectedValueOnce(new Error("db unreachable"));
+    const result = await service.run(profile);
+    expect(result.report).toEqual(report);
+    expect(result.token.length).toBeGreaterThan(0);
+  });
+
   it("returns a stored report by token", async () => {
     const { service, findUnique } = makeService();
     findUnique.mockResolvedValue({ token: "tok-1", report });

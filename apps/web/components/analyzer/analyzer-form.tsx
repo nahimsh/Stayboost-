@@ -70,7 +70,11 @@ export function AnalyzerForm(): React.JSX.Element {
       const result = await api.analyzer.run(parsed.data);
       setStatus({ kind: "done", report: result.report });
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch {
+    } catch (error) {
+      // Surface the real cause (network/CORS vs. API error) in the console so
+      // production failures are diagnosable from the browser dev tools.
+      // eslint-disable-next-line no-console
+      console.error("Analyzer request failed:", error);
       setStatus({ kind: "error" });
     }
   }
