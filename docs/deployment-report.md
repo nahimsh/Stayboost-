@@ -1,21 +1,31 @@
-# StayBoost — Deployment Report
+# StayBoost — Deployment / Launch Report
 
-**Date:** 2026-06-16 · **Scope:** deployment only (no feature development).
+**Date:** 2026-06-16 · **Scope:** launch execution (no feature development).
+
+## Launch attempt outcome
+
+**The launch could not be executed from the build environment.** A live preflight
+confirmed: no `RAILWAY_TOKEN`/`VERCEL_TOKEN`/`ANTHROPIC_API_KEY`/`DATABASE_URL` present,
+no `railway`/`vercel` CLIs installed, and the Railway & Vercel control planes return
+**HTTP 403** (firewalled outbound). Provisioning and deploying to your cloud accounts is
+therefore impossible here. Everything not requiring your credentials is done; the rest is
+reduced to setting secrets and running the **Deploy** workflow.
 
 ## Executive status
 
 | # | Task | Status | Owner |
 |---|------|--------|-------|
-| 1 | Provision PostgreSQL + pgvector | ⛔ **Blocked — needs your cloud account** | You (1 click, runbook §1) |
+| 1 | Provision PostgreSQL + pgvector | ⛔ **Blocked — needs your cloud account** | You (runbook §1) |
 | 2 | Provision Redis | ⛔ Blocked — needs your cloud account | You (runbook §2) |
-| 3 | Deploy API → Railway | 🟡 **Automated, not yet run** | `Deploy` workflow |
-| 4 | Deploy AI → Railway | 🟡 Automated, not yet run | `Deploy` workflow |
-| 5 | Deploy Web → Vercel | 🟡 Automated, not yet run | `Deploy` workflow |
+| 3 | Deploy Web → Vercel | 🟡 **Automated, not yet run** | `Deploy` workflow |
+| 4 | Deploy API → Railway | 🟡 Automated, not yet run | `Deploy` workflow |
+| 5 | Deploy AI → Railway | 🟡 Automated, not yet run | `Deploy` workflow |
 | 6 | Configure environment variables | 🟡 Template + contract ready | You (set in Railway/Vercel) |
 | 7 | Run migrations | ✅ **Automated on release** (idempotent) | API image / preDeploy |
-| 8 | Verify authentication | ✅ **Harness built**, runs post-deploy | `verify-deployment.sh` |
-| 9 | Verify RLS on deployed env | ✅ Harness built, runs post-deploy | `verify-deployment.sh` |
-| 10 | Produce deployment report | ✅ This document | — |
+| 8 | Verify authentication | ✅ **Harness covers it**, runs post-deploy | `verify-deployment.sh` |
+| 9 | Verify RLS | ✅ Harness covers it (two-tenant leak check) | `verify-deployment.sh` |
+| 10 | Verify analyzer | ✅ Harness covers it (4-pillar report) | `verify-deployment.sh` |
+| 11 | Verify dashboard | ✅ Harness covers it (all widgets present) | `verify-deployment.sh` |
 
 > **Why tasks 1–6 aren't executed here:** this build environment has **no Railway/Vercel
 > credentials and no outbound access to those control planes** (the container registry is
@@ -55,10 +65,14 @@
 
 ## Verification coverage (what "green" means)
 
-`scripts/verify-deployment.sh` against the live API asserts:
-- `GET /v1/health` → 200 and `GET /v1/health/ready` → 200 (DB reachable);
-- `/v1/auth/me` returns the signed-up user with the session cookie, and **401 without it**;
-- a second tenant's property is **not visible** to the first tenant (RLS enforced end-to-end).
+`scripts/verify-deployment.sh` against the live API asserts (tasks 8–11):
+- **Health:** `GET /v1/health` → 200 and `GET /v1/health/ready` → 200 (DB reachable);
+- **Auth (8):** `/v1/auth/me` returns the signed-up user with the session cookie, and **401 without it**;
+- **RLS (9):** a second tenant's property is **not visible** to the first tenant (end-to-end);
+- **Analyzer (10):** `POST /v1/analyzer/run` → 200 with a 4-pillar growth report;
+- **Dashboard (11):** `GET /v1/dashboard` (authenticated) → 200 with all widget data present.
+
+Exit code 0 means tasks 8–11 all passed against the deployed stack.
 
 Exit code 0 = deployment healthy and isolated; non-zero = do not onboard customers yet.
 

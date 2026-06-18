@@ -108,6 +108,31 @@ seesOther="$(json "$TMP/listA" "'yes' if any(p.get('id')=='$idB' for p in d) els
 [ "$seesOwn" = "yes" ] && green "tenant A sees its own property" || red "tenant A cannot see its own property"
 if [ "$seesOther" = "no" ]; then green "tenant A CANNOT see tenant B's property (RLS holds)"; else red "TENANT LEAK: A sees B's property"; fi
 
+# ── 4. AI Property Analyzer (public) ─────────────────────────────────────────
+info "4. AI Property Analyzer"
+curl -s -o "$TMP/an" -w '%{http_code}' -X POST "$API_URL/v1/analyzer/run" \
+  -H 'Content-Type: application/json' \
+  -d '{"propertyName":"Verify Villa","propertyType":"villa","country":"PT","city":"Lagos","unitsCount":2,"currency":"EUR","channels":["airbnb"],"biggestChallenge":"more_bookings"}' \
+  > "$TMP/an_code" || true
+anCode="$(cat "$TMP/an_code")"
+pillars="$(json "$TMP/an" "len(d.get('report',{}).get('pillars',[]))")"
+anEngine="$(json "$TMP/an" "d.get('report',{}).get('engine','')")"
+if [ "$anCode" = "200" ] && [ "$pillars" = "4" ]; then
+  green "POST /v1/analyzer/run -> 200, 4 pillars (engine: ${anEngine:-?})"
+else
+  red "analyzer -> $anCode (pillars=$pillars)"
+fi
+
+# ── 5. Dashboard (authenticated) ─────────────────────────────────────────────
+info "5. Dashboard"
+code="$(curl -s -o "$TMP/dash" -b "$TMP/jarA" -w '%{http_code}' "$API_URL/v1/dashboard" || true)"
+hasWidgets="$(json "$TMP/dash" "'yes' if all(k in d for k in ('revenue','occupancy','checkIns','checkOuts','recommendations')) else 'no'")"
+if [ "$code" = "200" ] && [ "$hasWidgets" = "yes" ]; then
+  green "GET /v1/dashboard -> 200 with all widget data"
+else
+  red "dashboard -> $code (widgets present: $hasWidgets)"
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo
 info "Summary"
