@@ -11,6 +11,7 @@ import { AuthModule } from "./auth/auth.module";
 import { ContactModule } from "./contact/contact.module";
 import { AnalyzerModule } from "./analyzer/analyzer.module";
 import { PropertiesModule } from "./properties/properties.module";
+import { ReservationsModule } from "./reservations/reservations.module";
 import { DashboardModule } from "./dashboard/dashboard.module";
 import { HealthController } from "./health/health.controller";
 
@@ -40,6 +41,7 @@ import { HealthController } from "./health/health.controller";
     ContactModule,
     AnalyzerModule,
     PropertiesModule,
+    ReservationsModule,
     DashboardModule,
   ],
   controllers: [HealthController],

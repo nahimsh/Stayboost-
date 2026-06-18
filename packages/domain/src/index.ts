@@ -106,3 +106,23 @@ export {
   type PropertySetupInput,
   type PropertySummary,
 } from "./property/property-setup";
+
+export {
+  RESERVATION_STATUSES,
+  CHANNEL_PROVIDERS,
+  CONNECTION_STATUSES,
+  reservationStatusSchema,
+  reservationSchema,
+  canonicalReservationSchema,
+  channelProviderSchema,
+  channelConnectionSchema,
+  createChannelConnectionInputSchema,
+  syncResultSchema,
+  type ReservationStatus,
+  type Reservation,
+  type CanonicalReservation,
+  type ChannelProvider,
+  type ChannelConnection,
+  type CreateChannelConnectionInput,
+  type SyncResult,
+} from "./reservation/reservation";

@@ -93,10 +93,59 @@ model Property {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  organization       Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  channelConnections ChannelConnection[]
+  reservations       Reservation[]
 
   @@index([orgId])
   @@map("properties")
+}
+
+/// A connected booking channel for a property (e.g. an Airbnb/Booking iCal feed).
+/// Tenant-owned (org_id) + RLS.
+model ChannelConnection {
+  id           String    @id @default(uuid()) @db.Uuid
+  orgId        String    @map("org_id") @db.Uuid
+  propertyId   String    @map("property_id") @db.Uuid
+  provider     String
+  icalUrl      String    @map("ical_url")
+  status       String    @default("active")
+  lastSyncedAt DateTime? @map("last_synced_at") @db.Timestamptz(6)
+  lastError    String?   @map("last_error")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([propertyId])
+  @@map("channel_connections")
+}
+
+/// A reservation normalized from a channel. Tenant-owned (org_id) + RLS. Unique
+/// per (org, source, external_id) so re-syncs upsert rather than duplicate.
+model Reservation {
+  id         String   @id @default(uuid()) @db.Uuid
+  orgId      String   @map("org_id") @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  channel    String
+  source     String
+  externalId String   @map("external_id")
+  status     String
+  checkIn    DateTime @map("check_in") @db.Date
+  checkOut   DateTime @map("check_out") @db.Date
+  nights     Int
+  guestName  String?  @map("guest_name")
+  raw        Json?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, source, externalId])
+  @@index([orgId, propertyId, checkIn])
+  @@index([propertyId, checkOut])
+  @@map("reservations")
 }
 
 /// A refresh-token session. The opaque refresh token is stored hashed; rotation

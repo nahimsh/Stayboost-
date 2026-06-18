@@ -13,6 +13,21 @@ jobs:
   verify:
     name: Lint · Typecheck · Test · Build
     runs-on: ubuntu-latest
+    # Real Postgres (with pgvector) so migrations + the RLS isolation test run.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: stayboost
+          POSTGRES_PASSWORD: stayboost
+          POSTGRES_DB: stayboost
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U stayboost"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://stayboost:stayboost@localhost:5432/stayboost?schema=public
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +45,9 @@ jobs:
 
       - name: Generate Prisma client
         run: pnpm --filter @stayboost/db generate
+
+      - name: Apply migrations (verifies SQL + enables the RLS test)
+        run: pnpm --filter @stayboost/db migrate:deploy
 
       - name: Lint
         run: pnpm lint
