@@ -1,0 +1,83 @@
+name: Deploy
+
+# Manual ("Run workflow") or on a v* release tag. Requires the repo secrets/vars
+# listed below — set them once in Settings > Secrets and variables > Actions.
+#
+# Secrets:  RAILWAY_TOKEN, VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+# Vars:     RAILWAY_API_SERVICE, RAILWAY_AI_SERVICE,
+#           DEPLOY_API_URL, DEPLOY_WEB_URL, DEPLOY_AI_URL
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-ai:
+    name: Deploy AI service (Railway)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preflight
+        run: |
+          test -n "${{ secrets.RAILWAY_TOKEN }}" || { echo "::error::RAILWAY_TOKEN secret is not set"; exit 1; }
+          test -n "${{ vars.RAILWAY_AI_SERVICE }}" || { echo "::error::RAILWAY_AI_SERVICE var is not set"; exit 1; }
+      - run: npm i -g @railway/cli
+      - name: Deploy
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service "${{ vars.RAILWAY_AI_SERVICE }}" --ci
+
+  deploy-api:
+    name: Deploy API (Railway) + migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preflight
+        run: |
+          test -n "${{ secrets.RAILWAY_TOKEN }}" || { echo "::error::RAILWAY_TOKEN secret is not set"; exit 1; }
+          test -n "${{ vars.RAILWAY_API_SERVICE }}" || { echo "::error::RAILWAY_API_SERVICE var is not set"; exit 1; }
+      - run: npm i -g @railway/cli
+      # The API image runs `prisma migrate deploy` on release (railway.json
+      # preDeployCommand), so migrations apply automatically on this deploy.
+      - name: Deploy
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service "${{ vars.RAILWAY_API_SERVICE }}" --ci
+
+  deploy-web:
+    name: Deploy Web (Vercel)
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preflight
+        run: |
+          test -n "${{ secrets.VERCEL_TOKEN }}" || { echo "::error::VERCEL_TOKEN secret is not set"; exit 1; }
+          test -n "$VERCEL_PROJECT_ID" || { echo "::error::VERCEL_PROJECT_ID secret is not set"; exit 1; }
+      - run: npm i -g vercel
+      - name: Pull, build & deploy (production)
+        run: |
+          vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
+
+  verify:
+    name: Verify deployment (health · auth · RLS)
+    runs-on: ubuntu-latest
+    needs: [deploy-api, deploy-ai, deploy-web]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run live verification harness
+        env:
+          API_URL: ${{ vars.DEPLOY_API_URL }}
+          WEB_URL: ${{ vars.DEPLOY_WEB_URL }}
+          AI_URL: ${{ vars.DEPLOY_AI_URL }}
+        run: |
+          test -n "$API_URL" || { echo "::error::DEPLOY_API_URL var is not set"; exit 1; }
+          bash scripts/verify-deployment.sh
