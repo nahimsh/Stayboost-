@@ -116,10 +116,30 @@ model ChannelConnection {
   updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  syncLogs SyncLog[]
 
   @@index([orgId])
   @@index([propertyId])
   @@map("channel_connections")
+}
+
+/// Append-only record of each sync run for a channel connection. Tenant-owned + RLS.
+model SyncLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  orgId        String   @map("org_id") @db.Uuid
+  connectionId String   @map("connection_id") @db.Uuid
+  status       String
+  imported     Int      @default(0)
+  updated      Int      @default(0)
+  blocked      Int      @default(0)
+  durationMs   Int      @default(0) @map("duration_ms")
+  message      String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  connection ChannelConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId, createdAt])
+  @@map("sync_logs")
 }
 
 /// A reservation normalized from a channel. Tenant-owned (org_id) + RLS. Unique

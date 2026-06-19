@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  Plug,
   LineChart,
   CalendarDays,
   Inbox,
@@ -24,10 +28,11 @@ interface NavItem {
   href?: string;
 }
 
-// Mirrors docs/06 IA. Only the Command Center exists today; the rest are shown
-// as upcoming so the navigation communicates the product without dead links.
+// Mirrors docs/06 IA. Implemented sections are real links; the rest are shown as
+// upcoming so the navigation communicates the product without dead links.
 const ITEMS: NavItem[] = [
   { label: nav.home, icon: LayoutDashboard, href: "/dashboard" },
+  { label: nav.channels, icon: Plug, href: "/dashboard/channels" },
   { label: nav.revenue, icon: LineChart },
   { label: nav.bookings, icon: CalendarDays },
   { label: nav.inbox, icon: Inbox },
@@ -41,6 +46,7 @@ const ITEMS: NavItem[] = [
 
 /** Persistent left nav (desktop). Hidden on mobile, where the top bar leads. */
 export function Sidebar(): React.JSX.Element {
+  const pathname = usePathname();
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r bg-card lg:flex">
       <div className="flex h-16 items-center border-b px-6">
@@ -52,12 +58,16 @@ export function Sidebar(): React.JSX.Element {
         {ITEMS.map((item) => {
           const Icon = item.icon;
           if (item.href) {
+            const active = pathname === item.href;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                aria-current="page"
-                className="flex items-center gap-3 rounded-md bg-secondary px-3 py-2 text-sm font-medium text-foreground"
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  active ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/60",
+                )}
               >
                 <Icon className="size-4" aria-hidden />
                 {item.label}
@@ -67,9 +77,7 @@ export function Sidebar(): React.JSX.Element {
           return (
             <span
               key={item.label}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground/70",
-              )}
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground/70"
             >
               <Icon className="size-4" aria-hidden />
               {item.label}

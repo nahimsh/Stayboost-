@@ -16,6 +16,7 @@ import {
   type ChannelConnection,
   type CreateChannelConnectionInput,
   type Reservation,
+  type SyncLog,
   type SyncResult,
 } from "@stayboost/domain";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
@@ -67,6 +68,14 @@ export class ReservationsController {
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<SyncResult> {
     return this.reservations.sync(await this.orgIdFor(user), id, user.id);
+  }
+
+  @Get("channels/:id/logs")
+  async logs(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<SyncLog[]> {
+    return this.channels.listLogs(await this.orgIdFor(user), id);
   }
 
   @Get("reservations")

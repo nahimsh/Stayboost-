@@ -25,6 +25,7 @@ function harness(opts: {
       findMany: vi.fn().mockResolvedValue(opts.rows ?? []),
     },
     channelConnection: { update: vi.fn().mockResolvedValue({}) },
+    syncLog: { create: vi.fn().mockResolvedValue({}) },
     property: { findFirst: vi.fn() },
   };
   const prisma = {
@@ -67,6 +68,9 @@ describe("ReservationsService.sync", () => {
     expect(tx.channelConnection.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ status: "active", lastSyncedAt: expect.any(Date) }) }),
     );
+    expect(tx.syncLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: "success", imported: 2, blocked: 1 }) }),
+    );
   });
 
   it("counts an existing reservation as updated", async () => {
@@ -81,6 +85,9 @@ describe("ReservationsService.sync", () => {
     (connector.fetchReservations as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("502 feed"));
     await expect(service.sync("org-1", "conn-1", "user-1")).rejects.toThrow(/feed/);
     expect(tx.channelConnection.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: "error" }) }),
+    );
+    expect(tx.syncLog.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ status: "error" }) }),
     );
   });

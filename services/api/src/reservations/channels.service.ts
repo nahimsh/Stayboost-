@@ -1,7 +1,20 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import type { ChannelConnection, CreateChannelConnectionInput } from "@stayboost/domain";
+import type {
+  ChannelConnection,
+  ConnectionHealth,
+  CreateChannelConnectionInput,
+  SyncLog,
+} from "@stayboost/domain";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../auth/audit.service";
+
+const STALE_AFTER_MS = 2 * 60 * 60 * 1000; // a feed not synced in 2h is "stale"
+
+function computeHealth(status: string, lastSyncedAt: Date | null): ConnectionHealth {
+  if (status === "error") return "error";
+  if (!lastSyncedAt) return "never_synced";
+  return Date.now() - lastSyncedAt.getTime() > STALE_AFTER_MS ? "stale" : "healthy";
+}
 
 function toDto(c: {
   id: string;
@@ -18,8 +31,33 @@ function toDto(c: {
     provider: c.provider as ChannelConnection["provider"],
     icalUrl: c.icalUrl,
     status: c.status as ChannelConnection["status"],
+    health: computeHealth(c.status, c.lastSyncedAt),
     lastSyncedAt: c.lastSyncedAt?.toISOString() ?? null,
     lastError: c.lastError,
+  };
+}
+
+function logToDto(l: {
+  id: string;
+  connectionId: string;
+  status: string;
+  imported: number;
+  updated: number;
+  blocked: number;
+  durationMs: number;
+  message: string | null;
+  createdAt: Date;
+}): SyncLog {
+  return {
+    id: l.id,
+    connectionId: l.connectionId,
+    status: l.status as SyncLog["status"],
+    imported: l.imported,
+    updated: l.updated,
+    blocked: l.blocked,
+    durationMs: l.durationMs,
+    message: l.message,
+    createdAt: l.createdAt.toISOString(),
   };
 }
 
@@ -72,5 +110,17 @@ export class ChannelsService {
     );
     if (!connection) throw new NotFoundException("Channel connection not found");
     return connection;
+  }
+
+  async listLogs(orgId: string, connectionId: string, limit = 20): Promise<SyncLog[]> {
+    await this.requireConnection(orgId, connectionId); // 404 if not this tenant's
+    return this.prisma.withTenant(orgId, async (tx) => {
+      const rows = await tx.syncLog.findMany({
+        where: { connectionId },
+        orderBy: { createdAt: "desc" },
+        take: Math.min(limit, 100),
+      });
+      return rows.map(logToDto);
+    });
   }
 }

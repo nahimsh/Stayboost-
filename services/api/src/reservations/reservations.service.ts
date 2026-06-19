@@ -47,20 +47,31 @@ export class ReservationsService {
   /** Pull the connection's iCal feed and upsert reservations (idempotent re-sync). */
   async sync(orgId: string, connectionId: string, actorUserId: string): Promise<SyncResult> {
     const connection = await this.channels.requireConnection(orgId, connectionId);
+    const startedAt = Date.now();
 
     let incoming;
     try {
       incoming = await this.connector.fetchReservations(
         connection.icalUrl,
-        connection.provider as "airbnb" | "booking_com" | "ical",
+        connection.provider as "airbnb" | "booking_com" | "vrbo" | "ical",
       );
     } catch (error) {
-      await this.prisma.withTenant(orgId, (tx) =>
-        tx.channelConnection.update({
+      const message = (error as Error).message.slice(0, 500);
+      await this.prisma.withTenant(orgId, async (tx) => {
+        await tx.channelConnection.update({
           where: { id: connection.id },
-          data: { status: "error", lastError: (error as Error).message.slice(0, 500) },
-        }),
-      );
+          data: { status: "error", lastError: message },
+        });
+        await tx.syncLog.create({
+          data: {
+            orgId,
+            connectionId: connection.id,
+            status: "error",
+            durationMs: Date.now() - startedAt,
+            message,
+          },
+        });
+      });
       throw error;
     }
 
@@ -101,6 +112,17 @@ export class ReservationsService {
       await tx.channelConnection.update({
         where: { id: connection.id },
         data: { status: "active", lastError: null, lastSyncedAt: new Date() },
+      });
+      await tx.syncLog.create({
+        data: {
+          orgId,
+          connectionId: connection.id,
+          status: "success",
+          imported,
+          updated,
+          blocked,
+          durationMs: Date.now() - startedAt,
+        },
       });
     });
 

@@ -424,6 +424,7 @@ export const en = {
     meta: { title: "Dashboard" },
     nav: {
       home: "Command Center",
+      channels: "Channels",
       revenue: "Revenue",
       bookings: "Bookings",
       inbox: "Inbox",
@@ -503,6 +504,49 @@ export const en = {
     finish: "Finish setup",
     finishing: "Setting up…",
     error: "We couldn't save your property. Please check the fields and try again.",
+  },
+  channels: {
+    meta: { title: "Channel Connect Center" },
+    title: "Channel Connect Center",
+    subtitle: "Connect your listings so StayBoost can sync reservations automatically.",
+    providers: { airbnb: "Airbnb", booking_com: "Booking.com", vrbo: "Vrbo", ical: "Other (iCal)" },
+    connect: {
+      title: "Connect a channel",
+      provider: "Channel",
+      icalUrl: "iCal export URL",
+      icalHint: {
+        airbnb: "Airbnb → Listing → Availability → Export calendar → copy the .ics link.",
+        booking_com: "Booking.com extranet → Calendar → Sync calendars → export link.",
+        vrbo: "Vrbo → Calendar → Import/Export → copy the export link.",
+        ical: "Paste the .ics export URL from your PMS or channel manager.",
+      },
+      submit: "Connect",
+      connecting: "Connecting…",
+      error: "We couldn't connect that channel. Check the URL and try again.",
+    },
+    health: { healthy: "Healthy", stale: "Stale", error: "Error", never_synced: "Never synced" },
+    card: {
+      lastSynced: "Last synced",
+      never: "never",
+      syncNow: "Sync now",
+      syncing: "Syncing…",
+      viewLogs: "View logs",
+      hideLogs: "Hide logs",
+      syncResult: "Imported {imported}, updated {updated}, blocked {blocked}.",
+    },
+    logs: {
+      title: "Sync history",
+      empty: "No syncs yet.",
+      cols: { when: "When", result: "Result", counts: "Imported / Updated / Blocked", duration: "Duration" },
+      success: "Success",
+      error: "Error",
+    },
+    empty: {
+      title: "No channels connected yet",
+      body: "Connect Airbnb, Booking.com, Vrbo, or any iCal feed to start syncing reservations.",
+    },
+    needsProperty: "Set up a property first, then connect its channels.",
+    loadError: "We couldn't load your channels. Please refresh.",
   },
 } as const;
 

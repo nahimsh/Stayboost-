@@ -1,6 +1,8 @@
 import type {
   AuthUser,
+  ChannelConnection,
   ContactLeadInput,
+  CreateChannelConnectionInput,
   DashboardSnapshot,
   GrowthReport,
   LoginInput,
@@ -12,6 +14,8 @@ import type {
   RequestPasswordResetInput,
   ResetPasswordInput,
   SignupInput,
+  SyncLog,
+  SyncResult,
   VerifyEmailInput,
 } from "@stayboost/domain";
 import { errorFromResponse } from "./errors";
@@ -61,6 +65,12 @@ export interface ApiClient {
   readonly properties: {
     create(input: PropertySetupInput): Promise<PropertySummary>;
     list(): Promise<PropertySummary[]>;
+  };
+  readonly channels: {
+    list(): Promise<ChannelConnection[]>;
+    create(input: CreateChannelConnectionInput): Promise<ChannelConnection>;
+    sync(id: string): Promise<SyncResult>;
+    logs(id: string): Promise<SyncLog[]>;
   };
 }
 
@@ -114,6 +124,12 @@ export function createApiClient({ baseUrl, fetch: fetchImpl, csrfToken }: ApiCli
     properties: {
       create: (input) => post<PropertySummary>("/v1/properties", input, true),
       list: () => request<PropertySummary[]>("/v1/properties"),
+    },
+    channels: {
+      list: () => request<ChannelConnection[]>("/v1/channels"),
+      create: (input) => post<ChannelConnection>("/v1/channels", input, true),
+      sync: (id) => post<SyncResult>(`/v1/channels/${encodeURIComponent(id)}/sync`, undefined, true),
+      logs: (id) => request<SyncLog[]>(`/v1/channels/${encodeURIComponent(id)}/logs`),
     },
   };
 }
