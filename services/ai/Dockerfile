@@ -1,10 +1,10 @@
-# StayBoost AI service (FastAPI). Build context = repo root or services/ai.
-#   docker build -f services/ai/Dockerfile -t stayboost-ai services/ai
+# StayBoost AI service (FastAPI). Build context = the REPOSITORY ROOT (Railway
+# default), so paths are prefixed with services/ai/.
 FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 WORKDIR /app
-COPY requirements.txt ./
+COPY services/ai/requirements.txt ./
 RUN pip install -r requirements.txt
-COPY app ./app
+COPY services/ai/app ./app
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
