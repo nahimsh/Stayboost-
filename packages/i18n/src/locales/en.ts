@@ -41,6 +41,7 @@ export const en = {
         "StayBoost connects to the tools you already use and puts an AI growth team to work — pricing, guest messaging, reviews and operations — so you book more, earn more and do less.",
       primaryCta: "Analyze my property — free",
       secondaryCta: "See how it works",
+      demoCta: "View live demo",
       trust: "No credit card required. Get your growth report in under 2 minutes.",
     },
     pillars: {
@@ -373,6 +374,7 @@ export const en = {
       forgot: "Forgot password?",
       magicLink: "Email me a login link",
       oauthError: "Google sign-in failed. Please try again or use your email.",
+      demoCta: "Explore the live demo — no account needed",
     },
     forgot: {
       meta: { title: "Reset password", description: "Reset your StayBoost password." },
@@ -444,6 +446,14 @@ export const en = {
     },
     greeting: "Welcome back",
     demoBanner: "You're viewing sample data. Connect your PMS or channel manager to see live numbers.",
+    demo: {
+      meta: { title: "StayBoost demo" },
+      badge: "Demo",
+      title: "You're exploring the StayBoost demo",
+      body: "This is the real dashboard filled with sample data — no account required. Sign up to connect your own property and see live numbers.",
+      signup: "Create your account",
+      backToSite: "Back to site",
+    },
     loadError: "We couldn't load your dashboard. Please refresh to try again.",
     retry: "Retry",
     viewAll: "View all",

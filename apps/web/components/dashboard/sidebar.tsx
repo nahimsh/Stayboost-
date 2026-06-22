@@ -44,13 +44,18 @@ const ITEMS: NavItem[] = [
   { label: nav.settings, icon: Settings },
 ];
 
-/** Persistent left nav (desktop). Hidden on mobile, where the top bar leads. */
-export function Sidebar(): React.JSX.Element {
+/**
+ * Persistent left nav (desktop). Hidden on mobile, where the top bar leads.
+ * In `demo` mode every real link points back to `/demo` so the public demo
+ * never bounces a logged-out visitor to the login page.
+ */
+export function Sidebar({ demo = false }: { readonly demo?: boolean }): React.JSX.Element {
   const pathname = usePathname();
+  const home = demo ? "/demo" : "/dashboard";
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r bg-card lg:flex">
       <div className="flex h-16 items-center border-b px-6">
-        <Link href="/dashboard" className="text-lg font-bold tracking-tight">
+        <Link href={home} className="text-lg font-bold tracking-tight">
           {t.common.brand}
         </Link>
       </div>
@@ -58,11 +63,12 @@ export function Sidebar(): React.JSX.Element {
         {ITEMS.map((item) => {
           const Icon = item.icon;
           if (item.href) {
-            const active = pathname === item.href;
+            const href = demo ? "/demo" : item.href;
+            const active = pathname === href;
             return (
               <Link
                 key={item.label}
-                href={item.href}
+                href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",

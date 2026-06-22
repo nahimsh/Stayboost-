@@ -86,7 +86,7 @@ export function DashboardShell(): React.JSX.Element {
   );
 }
 
-function DashboardGrid({ user, data }: { readonly user: AuthUser; readonly data: DashboardSnapshot }): React.JSX.Element {
+export function DashboardGrid({ user, data }: { readonly user: AuthUser; readonly data: DashboardSnapshot }): React.JSX.Element {
   const firstName = user.name.split(/\s+/)[0] ?? user.name;
   return (
     <div className="space-y-5">

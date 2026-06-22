@@ -100,6 +100,8 @@ export {
   type DashboardSnapshot,
 } from "./dashboard/dashboard";
 
+export { buildSampleDashboardSnapshot, type SampleDashboardContext } from "./dashboard/sample";
+
 export {
   propertySetupInputSchema,
   propertySummarySchema,

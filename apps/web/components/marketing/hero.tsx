@@ -24,8 +24,14 @@ export function Hero(): React.JSX.Element {
             <ArrowRight aria-hidden />
           </Link>
           <Link
-            href="/#how"
+            href="/demo"
             className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full sm:w-auto")}
+          >
+            {t.demoCta}
+          </Link>
+          <Link
+            href="/#how"
+            className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "w-full sm:w-auto")}
           >
             {t.secondaryCta}
           </Link>

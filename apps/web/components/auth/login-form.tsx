@@ -87,6 +87,11 @@ export function LoginForm(): React.JSX.Element {
           {t.login.signup}
         </Link>
       </p>
+      <p className="mt-4 border-t pt-4 text-center text-sm">
+        <Link href="/demo" className="font-medium text-primary hover:underline">
+          {t.login.demoCta}
+        </Link>
+      </p>
     </AuthCard>
   );
 }
