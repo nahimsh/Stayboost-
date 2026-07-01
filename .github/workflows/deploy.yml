@@ -1,31 +1,147 @@
 name: Deploy
 
-# Manual ("Run workflow") or on a v* release tag. Requires the repo secrets/vars
-# listed below — set them once in Settings > Secrets and variables > Actions.
+# Triggers:
+#   • push to main  — automatic deploy on every merge to main
+#   • v* tag push   — release deploy (e.g. v1.2.3)
+#   • workflow_dispatch — manual "Run workflow" button in GitHub UI
 #
-# Secrets:  RAILWAY_TOKEN, VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
-# Vars:     RAILWAY_API_SERVICE, RAILWAY_AI_SERVICE,
-#           DEPLOY_API_URL, DEPLOY_WEB_URL, DEPLOY_AI_URL
+# Required secrets (Settings › Secrets and variables › Actions › Secrets):
+#   RAILWAY_TOKEN        — Railway account/team token (railway.app › Account Settings › Tokens)
+#   DATABASE_URL         — Production Postgres connection string (postgresql://…)
+#   REDIS_URL            — Production Redis connection string (redis://…)
+#   RESEND_API_KEY       — Resend transactional-email API key
+#   JWT_SECRET           — ≥ 64-char random string; must match the value set in Railway
+#   ANTHROPIC_API_KEY    — Anthropic API key for the AI service
+#   AI_SERVICE_TOKEN     — Shared bearer token between the NestJS API and the AI FastAPI service
+#   GOOGLE_CLIENT_ID     — Google OAuth2 client ID
+#   GOOGLE_CLIENT_SECRET — Google OAuth2 client secret
+#   VERCEL_TOKEN         — Vercel personal access token
+#   VERCEL_ORG_ID        — Vercel team/org ID (visible in Project Settings or via `vercel env pull`)
+#   VERCEL_PROJECT_ID    — Vercel project ID for apps/web
+#
+# Required vars (Settings › Secrets and variables › Actions › Variables):
+#   RAILWAY_API_SERVICE  — Railway service name/ID for the NestJS API
+#   RAILWAY_AI_SERVICE   — Railway service name/ID for the FastAPI AI service
+#   DEPLOY_API_URL       — Live API base URL, e.g. https://api.stayboost.com
+#   DEPLOY_WEB_URL       — Live web URL, e.g. https://app.stayboost.com
+#   DEPLOY_AI_URL        — Live AI service URL, e.g. https://ai.stayboost.com
+#
+# Note — NEXT_PUBLIC_API_URL is a build-time env var baked into apps/web.
+# Set it in Vercel's project environment variables (not as a GitHub secret)
+# so every Vercel build picks it up automatically without touching this file.
+
 on:
-  workflow_dispatch:
   push:
+    branches: [main]
     tags: ["v*"]
+  workflow_dispatch:
 
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  # ─── Pre-deploy gate ──────────────────────────────────────────────────────
+  # Full CI suite must pass before any deploy job starts.
+  # All deploy jobs declare `needs: [ci, ci-ai]` — a red lint/test/build
+  # blocks the entire release pipeline automatically.
+
+  ci:
+    name: Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: stayboost
+          POSTGRES_PASSWORD: stayboost
+          POSTGRES_DB: stayboost
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U stayboost"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://stayboost:stayboost@localhost:5432/stayboost?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter @stayboost/db generate
+
+      - name: Apply migrations
+        run: pnpm --filter @stayboost/db migrate:deploy
+
+      - name: Lint (zero warnings allowed)
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  ci-ai:
+    name: AI service (Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/ai
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/ai/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: ruff check app tests
+
+      - name: Format check (black)
+        run: black --check app tests
+
+      - name: Test (pytest)
+        run: pytest -q
+
+  # ─── Deploy jobs ──────────────────────────────────────────────────────────
+
   deploy-ai:
     name: Deploy AI service (Railway)
     runs-on: ubuntu-latest
+    needs: [ci, ci-ai]
     steps:
       - uses: actions/checkout@v4
+
       - name: Preflight
         run: |
-          test -n "${{ secrets.RAILWAY_TOKEN }}" || { echo "::error::RAILWAY_TOKEN secret is not set"; exit 1; }
-          test -n "${{ vars.RAILWAY_AI_SERVICE }}" || { echo "::error::RAILWAY_AI_SERVICE var is not set"; exit 1; }
-      - run: npm i -g @railway/cli
+          test -n "${{ secrets.RAILWAY_TOKEN }}" \
+            || { echo "::error::RAILWAY_TOKEN secret is not set"; exit 1; }
+          test -n "${{ vars.RAILWAY_AI_SERVICE }}" \
+            || { echo "::error::RAILWAY_AI_SERVICE var is not set"; exit 1; }
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
       - name: Deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
@@ -34,15 +150,22 @@ jobs:
   deploy-api:
     name: Deploy API (Railway) + migrations
     runs-on: ubuntu-latest
+    needs: [ci, ci-ai]
     steps:
       - uses: actions/checkout@v4
+
       - name: Preflight
         run: |
-          test -n "${{ secrets.RAILWAY_TOKEN }}" || { echo "::error::RAILWAY_TOKEN secret is not set"; exit 1; }
-          test -n "${{ vars.RAILWAY_API_SERVICE }}" || { echo "::error::RAILWAY_API_SERVICE var is not set"; exit 1; }
-      - run: npm i -g @railway/cli
-      # The API image runs `prisma migrate deploy` on release (railway.json
-      # preDeployCommand), so migrations apply automatically on this deploy.
+          test -n "${{ secrets.RAILWAY_TOKEN }}" \
+            || { echo "::error::RAILWAY_TOKEN secret is not set"; exit 1; }
+          test -n "${{ vars.RAILWAY_API_SERVICE }}" \
+            || { echo "::error::RAILWAY_API_SERVICE var is not set"; exit 1; }
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      # The API's railway.json `preDeployCommand` runs `prisma migrate deploy`
+      # automatically, so DB migrations apply as part of this deploy step.
       - name: Deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
@@ -51,21 +174,37 @@ jobs:
   deploy-web:
     name: Deploy Web (Vercel)
     runs-on: ubuntu-latest
+    needs: [ci]
+    # The Vercel GitHub integration can deploy apps/web automatically on every
+    # push to main without this job — enable it in the Vercel project settings
+    # for zero-config deploys. This job gives you an explicit build log in
+    # GitHub Actions and lets you sequence the web deploy after the API is live.
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Preflight
         run: |
-          test -n "${{ secrets.VERCEL_TOKEN }}" || { echo "::error::VERCEL_TOKEN secret is not set"; exit 1; }
-          test -n "$VERCEL_PROJECT_ID" || { echo "::error::VERCEL_PROJECT_ID secret is not set"; exit 1; }
-      - run: npm i -g vercel
-      - name: Pull, build & deploy (production)
-        run: |
-          vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
-          vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          test -n "${{ secrets.VERCEL_TOKEN }}" \
+            || { echo "::error::VERCEL_TOKEN secret is not set"; exit 1; }
+          test -n "$VERCEL_PROJECT_ID" \
+            || { echo "::error::VERCEL_PROJECT_ID secret is not set"; exit 1; }
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Build
+        run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy prebuilt output
+        run: vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
+
+  # ─── Post-deploy smoke test ───────────────────────────────────────────────
 
   verify:
     name: Verify deployment (health · auth · RLS)
@@ -73,11 +212,13 @@ jobs:
     needs: [deploy-api, deploy-ai, deploy-web]
     steps:
       - uses: actions/checkout@v4
+
       - name: Run live verification harness
         env:
           API_URL: ${{ vars.DEPLOY_API_URL }}
           WEB_URL: ${{ vars.DEPLOY_WEB_URL }}
           AI_URL: ${{ vars.DEPLOY_AI_URL }}
         run: |
-          test -n "$API_URL" || { echo "::error::DEPLOY_API_URL var is not set"; exit 1; }
+          test -n "$API_URL" \
+            || { echo "::error::DEPLOY_API_URL var is not set"; exit 1; }
           bash scripts/verify-deployment.sh
