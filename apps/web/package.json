@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.63.0",
     "@stayboost/api-client": "workspace:*",
     "@stayboost/domain": "workspace:*",
     "@stayboost/i18n": "workspace:*",

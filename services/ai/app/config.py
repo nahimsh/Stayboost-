@@ -24,6 +24,8 @@ class Settings:
     service_token: str | None
     allowed_origins: tuple[str, ...]
     max_output_tokens: int
+    # Sentry DSN for error monitoring (optional; omit in dev/CI)
+    sentry_dsn: str | None
 
     @property
     def claude_enabled(self) -> bool:
@@ -39,4 +41,5 @@ def load_settings() -> Settings:
         service_token=os.environ.get("AI_SERVICE_TOKEN") or None,
         allowed_origins=tuple(o.strip() for o in origins.split(",") if o.strip()),
         max_output_tokens=int(os.environ.get("AI_MAX_OUTPUT_TOKENS", "4000")),
+        sentry_dsn=os.environ.get("AI_SENTRY_DSN") or None,
     )

@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import * as Sentry from "@sentry/node";
 import { Logger, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import helmet from "helmet";
@@ -8,8 +9,20 @@ import { AppModule } from "./app.module";
 import { ProblemDetailsFilter } from "./common/problem-details.filter";
 import { loadEnv } from "./config/env";
 
+// Validate env and initialize Sentry before anything else can throw.
+// Sentry must be set up this early to capture bootstrap-phase errors.
+const env = loadEnv();
+if (env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: env.NODE_ENV,
+    tracesSampleRate: 0, // Error monitoring only
+    sendDefaultPii: false, // Never auto-attach PII to events
+  });
+}
+
 async function bootstrap(): Promise<void> {
-  const env = loadEnv();
+  // env already validated at module level; reuse it here
   // We own body parsing so we can pin a strict size limit (DoS guard).
   const app = await NestFactory.create(AppModule, { bodyParser: false });
 

@@ -30,14 +30,17 @@ const envSchema = z
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     GOOGLE_REDIRECT_URI: z.string().url().optional(),
+    // --- Observability ---
+    SENTRY_DSN: z.string().url().optional(),
   })
   .superRefine((env, ctx) => {
     // In production, dependencies that have safe dev fallbacks must be present.
     if (env.NODE_ENV !== "production") return;
-    const required: ReadonlyArray<["DATABASE_URL" | "REDIS_URL" | "RESEND_API_KEY", unknown]> = [
+    const required: ReadonlyArray<["DATABASE_URL" | "REDIS_URL" | "RESEND_API_KEY" | "SENTRY_DSN", unknown]> = [
       ["DATABASE_URL", env.DATABASE_URL],
       ["REDIS_URL", env.REDIS_URL],
       ["RESEND_API_KEY", env.RESEND_API_KEY],
+      ["SENTRY_DSN", env.SENTRY_DSN],
     ];
     for (const [key, value] of required) {
       if (!value) {

@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 // Pragmatic CSP for a Next.js App Router app. 'unsafe-inline' is required for
@@ -55,4 +57,25 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// Wrap with Sentry webpack plugin. Options here are build-time only (source map
+// upload, tunnel). Runtime config lives in sentry.{client,server,edge}.config.ts.
+//
+// To enable source map upload set these in CI/Vercel:
+//   SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN
+//
+// The tunnelRoute proxies Sentry events through /api/sentry-tunnel on our own
+// origin, so no external Sentry domain is needed in the Content-Security-Policy
+// and requests survive ad-blockers that block sentry.io outright.
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Route browser SDK events through our own origin → no CSP exception needed
+  tunnelRoute: "/api/sentry-tunnel",
+  // Don't expose source maps in the browser network tab
+  hideSourceMaps: true,
+  // Suppress verbose Sentry CLI output in dev and CI logs
+  silent: true,
+  // Suppress the Sentry SDK logger in the client bundle (saves ~20 KB)
+  disableLogger: true,
+});
