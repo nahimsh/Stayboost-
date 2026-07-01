@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   ParseUUIDPipe,
   Post,
@@ -17,7 +18,6 @@ import {
   type CreateChannelConnectionInput,
   type Reservation,
   type SyncLog,
-  type SyncResult,
 } from "@stayboost/domain";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { AuthService } from "../auth/auth.service";
@@ -27,6 +27,7 @@ import { CsrfGuard } from "../auth/guards/csrf.guard";
 import { CurrentUser, Roles, type AuthenticatedUser } from "../auth/decorators";
 import { ChannelsService } from "./channels.service";
 import { ReservationsService } from "./reservations.service";
+import { SyncQueueService, type SyncJobAccepted } from "./sync-queue.service";
 
 @Controller({ path: "", version: "1" })
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -34,6 +35,7 @@ export class ReservationsController {
   constructor(
     private readonly channels: ChannelsService,
     private readonly reservations: ReservationsService,
+    private readonly syncQueue: SyncQueueService,
     private readonly auth: AuthService,
   ) {}
 
@@ -62,12 +64,16 @@ export class ReservationsController {
   @Roles("manager")
   @UseGuards(CsrfGuard)
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @HttpCode(202)
   @Post("channels/:id/sync")
   async sync(
     @Param("id", ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<SyncResult> {
-    return this.reservations.sync(await this.orgIdFor(user), id, user.id);
+  ): Promise<SyncJobAccepted> {
+    const orgId = await this.orgIdFor(user);
+    // Verify the connection exists and belongs to this org before enqueueing.
+    await this.channels.requireConnection(orgId, id);
+    return this.syncQueue.enqueue(orgId, id);
   }
 
   @Get("channels/:id/logs")

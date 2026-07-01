@@ -1,0 +1,27 @@
+{
+  "name": "@stayboost/workers",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@stayboost/db": "workspace:*",
+    "@stayboost/domain": "workspace:*",
+    "bullmq": "5.79.2",
+    "ioredis": "5.10.1",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@stayboost/config": "workspace:*",
+    "@types/node": "22.10.2",
+    "tsx": "4.19.2",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
+  }
+}

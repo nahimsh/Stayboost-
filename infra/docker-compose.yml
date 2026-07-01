@@ -28,5 +28,20 @@ services:
       timeout: 3s
       retries: 10
 
+  workers:
+    build:
+      context: ..
+      dockerfile: services/workers/Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://stayboost:stayboost@postgres:5432/stayboost
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   stayboost_pg:

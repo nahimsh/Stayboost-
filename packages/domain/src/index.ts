@@ -110,6 +110,13 @@ export {
 } from "./property/property-setup";
 
 export {
+  type IcalEvent,
+  parseIcal,
+  normalizeEvent,
+  reservationsFromIcal,
+} from "./reservation/ical-parser";
+
+export {
   RESERVATION_STATUSES,
   CHANNEL_PROVIDERS,
   CONNECTION_STATUSES,

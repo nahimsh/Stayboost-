@@ -1,0 +1,15 @@
+{
+  "extends": "@stayboost/config/tsconfig/base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "lib": ["ES2022"],
+    "target": "ES2022",
+    "skipLibCheck": true,
+    "noEmit": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "isolatedModules": false
+  },
+  "include": ["src"]
+}
