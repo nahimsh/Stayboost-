@@ -275,6 +275,23 @@ model AiAction {
   @@map("ai_actions")
 }
 
+/// In-app notification for an operator. Tenant-owned (org_id) + RLS.
+/// Created by system events (sync errors, new bookings, AI suggestions, etc.).
+model Notification {
+  id         String   @id @default(uuid()) @db.Uuid
+  orgId      String   @map("org_id") @db.Uuid
+  propertyId String?  @map("property_id") @db.Uuid
+  type       String   /// "booking" | "review" | "pricing" | "ops" | "system"
+  title      String
+  body       String
+  severity   String   @default("low") /// "high" | "medium" | "low"
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([orgId, read, createdAt])
+  @@map("notifications")
+}
+
 /// Inbound contact / sales lead captured before signup. Platform-level (not
 /// tenant-owned): only internal/admin contexts read it.
 model ContactLead {
