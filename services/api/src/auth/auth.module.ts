@@ -10,6 +10,7 @@ import { CookieService } from "./cookies";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { RolesGuard } from "./guards/roles.guard";
 import { CsrfGuard } from "./guards/csrf.guard";
+import { PasswordResetThrottlerGuard } from "./guards/password-reset.guard";
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CsrfGuard } from "./guards/csrf.guard";
     JwtAuthGuard,
     RolesGuard,
     CsrfGuard,
+    PasswordResetThrottlerGuard,
   ],
   exports: [AuthService, TokensService, AuditService, JwtAuthGuard, RolesGuard],
 })

@@ -37,6 +37,7 @@ import { GoogleService } from "./google.service";
 import { CookieService, REFRESH_COOKIE } from "./cookies";
 import { CsrfGuard } from "./guards/csrf.guard";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { PasswordResetThrottlerGuard } from "./guards/password-reset.guard";
 import { CurrentUser, Public, type AuthenticatedUser } from "./decorators";
 import { safeEqual } from "./crypto.util";
 import { type RequestContext } from "./tokens.service";
@@ -120,7 +121,10 @@ export class AuthController {
   }
 
   @Public()
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  // 3 requests per hour keyed by email address (PasswordResetThrottlerGuard)
+  // to prevent reset-link spam targeting a specific mailbox.
+  @UseGuards(PasswordResetThrottlerGuard)
+  @Throttle({ default: { limit: 3, ttl: 3_600_000 } })
   @Post("password/forgot")
   @UsePipes(new ZodValidationPipe(requestPasswordResetInputSchema))
   async forgotPassword(@Body() body: RequestPasswordResetInput, @Req() req: Request): Promise<{ ok: true }> {

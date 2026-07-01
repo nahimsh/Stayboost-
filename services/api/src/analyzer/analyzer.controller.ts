@@ -10,7 +10,8 @@ export class AnalyzerController {
 
   // Public + AI-backed (cost): keep the limit tight. A captcha is enforced at the
   // edge before this route in production (see docs/adr/0002).
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  // 5 requests per 10 minutes per IP — prevents Claude API cost abuse.
+  @Throttle({ default: { limit: 5, ttl: 600_000 } })
   @Post("run")
   @UsePipes(new ZodValidationPipe(propertyProfileInputSchema))
   async run(@Body() body: PropertyProfileInput): Promise<AnalyzerRunResult> {

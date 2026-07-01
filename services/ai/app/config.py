@@ -24,8 +24,12 @@ class Settings:
     service_token: str | None
     allowed_origins: tuple[str, ...]
     max_output_tokens: int
-    # Sentry DSN for error monitoring (optional; omit in dev/CI)
-    sentry_dsn: str | None
+    # Fields below have defaults so they remain optional in dev/test.
+    # Sentry DSN for error monitoring (leave empty in dev/CI)
+    sentry_dsn: str | None = None
+    # Rate limits — override in tests with small values ("2/minute")
+    analyze_rate_limit: str = "10/minute"
+    global_rate_limit: str = "100/minute"
 
     @property
     def claude_enabled(self) -> bool:
@@ -42,4 +46,6 @@ def load_settings() -> Settings:
         allowed_origins=tuple(o.strip() for o in origins.split(",") if o.strip()),
         max_output_tokens=int(os.environ.get("AI_MAX_OUTPUT_TOKENS", "4000")),
         sentry_dsn=os.environ.get("AI_SENTRY_DSN") or None,
+        analyze_rate_limit=os.environ.get("ANALYZE_RATE_LIMIT", "10/minute"),
+        global_rate_limit=os.environ.get("GLOBAL_RATE_LIMIT", "100/minute"),
     )

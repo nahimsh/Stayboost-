@@ -2,4 +2,5 @@ anthropic==0.42.0
 fastapi==0.115.6
 pydantic==2.10.4
 sentry-sdk[fastapi]>=2.19.0
+slowapi==0.1.10
 uvicorn==0.34.0
